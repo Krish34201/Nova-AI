@@ -51,10 +51,10 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/inspirations'} tooltip="Inspirations">
+            <SidebarMenuButton asChild isActive={pathname === '/inspirations'} tooltip="Quotes">
               <Link href="/inspirations">
                 <Lightbulb />
-                <span>Inspirations</span>
+                <span>Quotes</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

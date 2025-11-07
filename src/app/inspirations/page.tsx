@@ -65,7 +65,7 @@ export default function InspirationsPage() {
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
             <Lightbulb className="h-6 w-6" />
-            <h1 className="text-xl font-semibold">Inspirations</h1>
+            <h1 className="text-xl font-semibold">Quotes</h1>
           </div>
         </header>
 
