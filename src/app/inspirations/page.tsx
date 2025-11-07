@@ -19,7 +19,7 @@ const QUOTES_PER_PAGE = 6;
 export default function InspirationsPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [visibleQuotes, setVisibleQuotes] = useState(QUOTES_PER_PAGE);
-  const [randomQuote, setRandomQuote] = useState<Quote | null>(null);
+  const [aiQuotes, setAiQuotes] = useState<Quote[] | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const filteredQuotes = useMemo(() => {
@@ -33,14 +33,14 @@ export default function InspirationsPage() {
     setVisibleQuotes((prev) => prev + QUOTES_PER_PAGE);
   };
 
-  const handleRandomQuote = async () => {
+  const handleGenerateAiQuotes = async () => {
     setIsGenerating(true);
-    setRandomQuote(null);
+    setAiQuotes(null);
     try {
-      const result = await generateQuote({ category: 'Any' });
-      setRandomQuote(result as Quote);
+      const result = await generateQuote({ category: selectedCategory });
+      setAiQuotes(result.quotes as Quote[]);
     } catch (error) {
-      console.error("Error generating quote:", error);
+      console.error("Error generating quotes:", error);
       // Optionally, show an error toast to the user
     } finally {
       setIsGenerating(false);
@@ -50,11 +50,12 @@ export default function InspirationsPage() {
   const handleCategorySelect = (category: Category | 'All') => {
     setSelectedCategory(category);
     setVisibleQuotes(QUOTES_PER_PAGE);
-    setRandomQuote(null);
+    setAiQuotes(null);
   };
 
   const quotesToShow = filteredQuotes.slice(0, visibleQuotes);
   const canLoadMore = visibleQuotes < filteredQuotes.length;
+  const showStaticContent = !aiQuotes && !isGenerating;
 
   return (
     <div className="flex h-screen w-full bg-background">
@@ -89,47 +90,65 @@ export default function InspirationsPage() {
             </div>
 
             <div className="flex justify-center mb-8">
-              <Button onClick={handleRandomQuote} disabled={isGenerating} size="lg">
+              <Button onClick={handleGenerateAiQuotes} disabled={isGenerating} size="lg">
                 {isGenerating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Shuffle className="mr-2 h-4 w-4" />
                 )}
-                {isGenerating ? 'Generating...' : 'Generate AI Quote'}
+                {isGenerating ? 'Generating...' : 'Generate AI Quotes'}
               </Button>
             </div>
 
             <AnimatePresence>
-              {(isGenerating || randomQuote) && (
+              {isGenerating && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className="flex justify-center"
                 >
-                  <Card className="w-full max-w-2xl shadow-2xl bg-card/80 backdrop-blur-sm transform hover:scale-105 transition-transform duration-300">
-                     {isGenerating ? (
-                        <CardContent className="pt-6 text-center h-48 flex flex-col items-center justify-center">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                            <p className="text-muted-foreground">Generating your inspiration...</p>
-                        </CardContent>
-                     ) : randomQuote && (
-                      <>
-                        <CardHeader>
-                          <CardTitle className="text-center text-primary">{randomQuote.category}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-center">
-                          <p className="text-2xl font-semibold mb-4">"{randomQuote.quote}"</p>
-                          <p className="text-lg text-muted-foreground">- {randomQuote.author}</p>
-                        </CardContent>
-                      </>
-                     )}
+                  <Card className="w-full max-w-2xl shadow-2xl bg-card/80 backdrop-blur-sm">
+                    <CardContent className="pt-6 text-center h-48 flex flex-col items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                        <p className="text-muted-foreground">Generating your inspiration...</p>
+                    </CardContent>
                   </Card>
                 </motion.div>
               )}
             </AnimatePresence>
             
-            {!randomQuote && !isGenerating && (
+            {aiQuotes && (
+              <motion.div
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="md:col-span-2 lg:col-span-3 text-center mb-4">
+                    <h2 className="text-2xl font-bold">AI Generated Quotes</h2>
+                    <p className="text-muted-foreground">Category: {selectedCategory}</p>
+                </div>
+                {aiQuotes.map((quote, index) => (
+                  <motion.div
+                    key={`${quote.quote}-${index}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="h-full flex flex-col justify-between transform hover:-translate-y-1 transition-transform duration-300">
+                      <CardContent className="pt-6">
+                        <p className="text-lg font-medium">"{quote.quote}"</p>
+                      </CardContent>
+                      <CardHeader className="pt-0">
+                        <CardDescription>- {quote.author}</CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {showStaticContent && (
               <motion.div
                 className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
                 initial={{ opacity: 0 }}
@@ -155,7 +174,7 @@ export default function InspirationsPage() {
               </motion.div>
             )}
 
-            {!randomQuote && !isGenerating && canLoadMore && (
+            {showStaticContent && canLoadMore && (
               <div className="flex justify-center mt-8">
                 <Button onClick={handleLoadMore}>Load More</Button>
               </div>
