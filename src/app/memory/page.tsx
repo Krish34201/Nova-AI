@@ -3,7 +3,6 @@ import { AppSidebar } from '@/components/app/sidebar'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Book } from 'lucide-react'
-import { motion } from 'framer-motion'
 
 export default function MemoryPage() {
   return (
@@ -18,7 +17,7 @@ export default function MemoryPage() {
         </header>
 
         <main className="flex-1 flex items-center justify-center p-6">
-           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
+           <div >
             <Card className="w-full max-w-2xl text-center shadow-2xl bg-card/80 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex justify-center mb-4">
@@ -35,11 +34,9 @@ export default function MemoryPage() {
                 </p>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </main>
       </SidebarInset>
     </div>
   )
 }
-
-    

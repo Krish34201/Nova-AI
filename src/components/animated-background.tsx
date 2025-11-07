@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const AnimatedBackground = () => {
+const AnimatedBackground = React.memo(() => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -25,6 +25,8 @@ const AnimatedBackground = () => {
       </div>
     </div>
   );
-};
+});
+
+AnimatedBackground.displayName = 'AnimatedBackground';
 
 export default AnimatedBackground;

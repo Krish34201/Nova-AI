@@ -44,7 +44,7 @@ export default function AgentsPage() {
         </header>
 
         <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <div >
             <Card className="max-w-3xl w-full shadow-2xl bg-card/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Automate a Complex Task</CardTitle>
@@ -99,11 +99,9 @@ export default function AgentsPage() {
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </main>
       </SidebarInset>
     </div>
   );
 }
-
-    
