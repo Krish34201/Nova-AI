@@ -22,7 +22,6 @@ type Message = {
 };
 
 export default function Home() {
-  const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
   const aiAvatar = PlaceHolderImages.find((p) => p.id === 'ai-avatar');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { username } = useUsername();
@@ -120,7 +119,6 @@ export default function Home() {
                 </div>
                 {message.isUser && (
                   <Avatar className="h-9 w-9 border">
-                    {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" data-ai-hint={userAvatar.imageHint} />}
                     <AvatarFallback>{username ? username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
                   </Avatar>
                 )}

@@ -10,13 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { useUsername } from "@/components/username-provider"
 import { Skeleton } from "./ui/skeleton"
 
 export function UserNav() {
   const { username, setUsername, isLoading } = useUsername();
-  const userAvatar = PlaceHolderImages.find(p => p.id === 'user-avatar');
 
   const handleLogout = () => {
     // Also remove from local storage
@@ -37,7 +35,6 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt={`@${username}`} data-ai-hint={userAvatar.imageHint} />}
             <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
