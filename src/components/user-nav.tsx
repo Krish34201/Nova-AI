@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useUsername } from "@/components/username-provider"
 import { Skeleton } from "./ui/skeleton"
+import { LogOut } from "lucide-react"
 
 export function UserNav() {
   const { username, setUsername, isLoading } = useUsername();
@@ -23,7 +24,12 @@ export function UserNav() {
   };
 
   if (isLoading) {
-    return <Skeleton className="h-9 w-9 rounded-full" />;
+    return (
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-9 w-9 rounded-full" />
+        <Skeleton className="h-4 w-20" />
+      </div>
+    )
   }
 
   if (!username) {
@@ -33,10 +39,13 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
-          </Avatar>
+        <Button variant="ghost" className="relative h-9 w-auto rounded-full px-2 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-9 w-9">
+              <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <span className="group-data-[collapsible=icon]:hidden">{username}</span>
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -50,7 +59,8 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
-            Logout
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
