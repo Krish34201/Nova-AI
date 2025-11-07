@@ -8,74 +8,74 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* White */
-    --foreground: 240 10% 3.9%; /* Dark Slate Blue */
+    --background: 222 84% 4.9%; /* Deep Navy Blue */
+    --foreground: 210 40% 98%; /* Light Gray */
     
-    --card: 0 0% 98%; /* Light Gray */
-    --card-foreground: 240 10% 3.9%;
+    --card: 222 84% 6.5%; /* Darker Navy */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover: 222 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 50%; /* Main Blue */
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 210 40% 50%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 240 10% 99%;
-    --sidebar-foreground: 240 10% 20%;
-    --sidebar-primary: 210 40% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 93%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
-    --sidebar-ring: 210 40% 50%;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%; /* Dark Slate Blue */
-    --foreground: 0 0% 98%; /* White */
-    
-    --card: 240 4.8% 12%; /* Slightly lighter slate */
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 210 40% 98%; /* Bright Blue */
-    --primary-foreground: 210 40% 9.8%;
+    --primary: 204 100% 50%; /* Electric Blue */
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
     --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 0 0% 98%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 210 40% 98%;
+    --ring: 204 100% 50%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 222 84% 5.5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 204 100% 50%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 217.2 32.6% 22.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 204 100% 50%;
+  }
+
+  .dark {
+    --background: 222 84% 4.9%; /* Deep Navy Blue */
+    --foreground: 210 40% 98%; /* Light Gray */
+    
+    --card: 222 84% 6.5%; /* Darker Navy */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 204 100% 50%; /* Electric Blue */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 204 100% 50%;
   }
 }
 
@@ -111,9 +111,9 @@ body {
 .particle {
     position: absolute;
     border-radius: 50%;
-    background-color: hsla(var(--primary), 0.5);
+    background-color: hsl(var(--primary) / 0.5);
     animation: twinkle 5s infinite;
-    box-shadow: 0 0 3px hsla(var(--primary), 0.4);
+    box-shadow: 0 0 8px hsl(var(--primary) / 0.6), 0 0 16px hsl(var(--primary) / 0.4), 0 0 24px hsl(180 100% 50% / 0.2);
 }
 
 @keyframes twinkle {
@@ -122,31 +122,30 @@ body {
         transform: scale(0.8);
     }
     50% {
-        opacity: 0.7;
+        opacity: 1;
         transform: scale(1);
     }
 }
 
 /* Generate particles with random properties */
 .particle:nth-child(5n) {
-    background-color: hsla(var(--primary), 0.5);
-    box-shadow: 0 0 3px hsla(var(--primary), 0.4);
+    background-color: hsl(180 100% 50% / 0.7);
 }
 
 .particle:nth-child(5n + 1) {
-    background-color: hsla(var(--primary), 0.6);
+    background-color: hsl(var(--primary) / 0.8);
 }
 
 .particle:nth-child(5n + 2) {
-    background-color: hsla(var(--primary), 0.3);
+    background-color: hsl(var(--primary) / 0.4);
 }
 
 .particle:nth-child(5n + 3) {
-    background-color: hsla(var(--primary), 0.4);
+    background-color: hsl(180 100% 50% / 0.5);
 }
 
 .particle:nth-child(5n + 4) {
-    background-color: hsla(210, 40%, 80%, 0.4);
+    background-color: hsl(204 100% 80% / 0.4);
 }
 
 .particle:nth-child(1) { top: 15%; left: 15%; animation-duration: 4s; animation-delay: -2s; width: 2px; height: 2px; }
@@ -249,5 +248,3 @@ body {
 .particle:nth-child(98) { top: 74%; left: 26%; animation-duration: 5s; animation-delay: -3.5s; width: 1px; height: 1px; }
 .particle:nth-child(99) { top: 26%; left: 74%; animation-duration: 8s; animation-delay: -8.5s; width: 2px; height: 2px; }
 .particle:nth-child(100) { top: 54%; left: 46%; animation-duration: 4s; animation-delay: -5.5s; width: 1px; height: 1px; }
-
-    
