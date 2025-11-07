@@ -2,10 +2,9 @@
 
 import { AppSidebar } from '@/components/app/sidebar'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
-import { ModelSwitcher, type Model } from '@/components/app/model-switcher'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Paperclip, Send, Mic, X, File as FileIcon, Image as ImageIcon } from 'lucide-react'
+import { Paperclip, Send, Mic, X, File as FileIcon, Image as ImageIcon, Wand2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Card } from '@/components/ui/card'
@@ -45,7 +44,8 @@ export default function Home() {
   const [isSending, setIsSending] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+  const [isImageGenMode, setIsImageGenMode] = useState(false);
+
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -98,10 +98,7 @@ export default function Home() {
     removeAttachment();
 
     try {
-      let aiResponse;
-
-      // Image generation with v2.0
-      if (selectedModel?.value === 'llama') {
+      if (isImageGenMode) {
           const imageResponse = await generateImage({ prompt: currentInput });
           const aiMessage: Message = {
               text: `Here is the image you requested for: "${currentInput}"`,
@@ -109,6 +106,7 @@ export default function Home() {
               image: imageResponse.imageDataUri,
           };
           setMessages(prev => [...prev, aiMessage]);
+          setIsImageGenMode(false);
       } else if (currentFile) {
          // If there is a file, we assume it's for summarization for now.
          const reader = new FileReader();
@@ -145,7 +143,7 @@ export default function Home() {
          return; // The response will be handled in the onload callback
       } else {
         // Default chat response
-        aiResponse = await personalizedResponse({ query: currentInput, userName: username || undefined });
+        const aiResponse = await personalizedResponse({ query: currentInput, userName: username || undefined });
         const aiMessage: Message = {
             text: aiResponse.response,
             isUser: false,
@@ -171,8 +169,12 @@ export default function Home() {
       handleSend();
     }
   };
-
-  const isImageGenMode = selectedModel?.value === 'llama';
+  
+  const toggleImageGenMode = () => {
+    setIsImageGenMode(prev => !prev);
+    setAttachedFile(null);
+    setFilePreview(null);
+  }
 
   return (
     <div className="flex h-screen w-full bg-background">
@@ -181,7 +183,7 @@ export default function Home() {
         <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
-            <ModelSwitcher onModelChange={setSelectedModel} />
+             <h1 className="text-xl font-semibold">Nova AI</h1>
           </div>
           <div className="ml-auto flex items-center gap-4">
           </div>
@@ -274,20 +276,17 @@ export default function Home() {
                 disabled={isSending}
               />
               <div className="absolute top-1/2 left-3 transform -translate-y-1/2 flex items-center">
-                {isImageGenMode ? (
-                  <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                ) : (
-                  <Button variant="ghost" size="icon" className="rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
-                    <Paperclip className="h-5 w-5" />
-                  </Button>
-                )}
+                 <Button variant={isImageGenMode ? "secondary" : "ghost"} size="icon" className="rounded-full" onClick={toggleImageGenMode} disabled={isSending}>
+                    <Wand2 className="h-5 w-5" />
+                 </Button>
               </div>
               <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
-                {!isImageGenMode &&
-                  <Button variant="ghost" size="icon" className="rounded-full" disabled={isSending}>
-                    <Mic className="h-5 w-5" />
-                  </Button>
-                }
+                <Button variant="ghost" size="icon" className="rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isSending || isImageGenMode}>
+                  <Paperclip className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="rounded-full" disabled={isSending}>
+                  <Mic className="h-5 w-5" />
+                </Button>
                 <Button size="icon" className="rounded-full" onClick={handleSend} disabled={isSending}>
                   <Send className="h-5 w-5" />
                 </Button>
@@ -302,3 +301,5 @@ export default function Home() {
     </div>
   )
 }
+
+    

@@ -4,7 +4,7 @@ import {
   MessageSquare,
   Bot,
   Book,
-  Settings,
+  Wand2,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -51,6 +51,14 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/image-generation'} tooltip="Image Generation">
+              <Link href="/image-generation">
+                <Wand2 />
+                <span>Image Generation</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/memory'} tooltip="Memory">
               <Link href="/memory">
                 <Book />
@@ -68,3 +76,5 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
+
+    
