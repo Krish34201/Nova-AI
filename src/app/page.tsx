@@ -15,6 +15,7 @@ import { summarizeDocument } from '@/ai/flows/summarize-document';
 import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 type Message = {
   text: string;
@@ -182,13 +183,17 @@ export default function Home() {
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
                 )}
-                <div className={cn(
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={cn(
                   'flex-1 space-y-2 max-w-2xl',
                   message.isUser ? 'text-right' : ''
                 )}>
                   <Card className={cn(
                     'p-4 rounded-lg inline-block shadow-md',
-                     message.isUser ? 'bg-primary text-primary-foreground slide-in-right' : 'bg-card slide-in-left'
+                     message.isUser ? 'bg-primary text-primary-foreground' : 'bg-card'
                   )}>
                     {message.image && (
                       <Image src={message.image} alt="Uploaded image" width={300} height={300} className="rounded-md mb-2 max-w-full h-auto"/>
@@ -208,7 +213,7 @@ export default function Home() {
                        </div>
                     )}
                   </Card>
-                </div>
+                </motion.div>
                 {message.isUser && (
                   <Avatar className="h-9 w-9 border">
                     <AvatarFallback>{username ? username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
@@ -223,8 +228,12 @@ export default function Home() {
                         <AvatarFallback>AI</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 space-y-2 max-w-2xl">
-                        <Card className="p-4 rounded-lg inline-block shadow-md bg-card slide-in-left">
-                            <p className="text-sm">Thinking...</p>
+                        <Card className="p-4 rounded-lg inline-block shadow-md bg-card">
+                             <div className="flex items-center justify-center gap-2">
+                                <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]" />
+                                <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]" />
+                                <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse" />
+                            </div>
                         </Card>
                     </div>
                 </div>
