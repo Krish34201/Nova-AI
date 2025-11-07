@@ -22,8 +22,11 @@ import { NovaLogo } from '../nova-logo'
 import { UserNav } from '../user-nav'
 import { Separator } from '../ui/separator'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function AppSidebar() {
+  const pathname = usePathname();
+
   return (
     <Sidebar>
       <SidebarHeader className="h-16 border-b">
@@ -35,32 +38,32 @@ export function AppSidebar() {
       <SidebarContent className="p-2 flex-1">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive tooltip="Chat">
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Chat">
+              <Link href="/">
                 <MessageSquare />
                 <span>Chat</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="AI Agents">
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/agents'} tooltip="AI Agents">
+              <Link href="/agents">
                 <Bot />
                 <span>AI Agents</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Tools">
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/tools'} tooltip="Tools">
+              <Link href="/tools">
                 <Code2 />
                 <span>Tools</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Memory">
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/memory'} tooltip="Memory">
+              <Link href="/memory">
                 <Book />
                 <span>Memory</span>
               </Link>
