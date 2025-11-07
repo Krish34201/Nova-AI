@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { automateComplexTask } from '@/ai/flows/automate-complex-task';
 import { Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function AgentsPage() {
   const [taskDescription, setTaskDescription] = useState('');
@@ -35,57 +36,71 @@ export default function AgentsPage() {
     <div className="flex h-screen w-full bg-background">
       <AppSidebar />
       <SidebarInset className="flex flex-col">
-        <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card">
+        <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
             <h1 className="text-xl font-semibold">AI Agents</h1>
           </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-hidden p-6">
-          <Card className="max-w-3xl mx-auto w-full">
-            <CardHeader>
-              <CardTitle>Automate a Complex Task</CardTitle>
-              <CardDescription>
-                Describe a complex task, and our AI agent will break it down into simpler, actionable steps for you.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                <Textarea
-                  placeholder="e.g., Plan a 3-day trip to Paris for a family of four..."
-                  className="w-full resize-none min-h-[100px]"
-                  value={taskDescription}
-                  onChange={(e) => setTaskDescription(e.target.value)}
-                  disabled={isLoading}
-                />
-                <Button onClick={handleAutomate} disabled={isLoading || !taskDescription.trim()}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Automate'}
-                </Button>
-              </div>
-
-              {automationResult && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold">Generated Plan</h3>
-                  <div className="mt-4 space-y-4">
-                    <div>
-                      <h4 className="font-semibold">Steps:</h4>
-                      <ul className="list-disc list-inside mt-2 space-y-1">
-                        {automationResult.steps.map((step, index) => (
-                          <li key={index}>{step}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">Explanation:</h4>
-                      <p className="text-sm text-muted-foreground mt-2">{automationResult.explanation}</p>
-                    </div>
-                  </div>
+        <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Card className="max-w-3xl w-full shadow-2xl">
+              <CardHeader>
+                <CardTitle>Automate a Complex Task</CardTitle>
+                <CardDescription>
+                  Describe a complex task, and our AI agent will break it down into simpler, actionable steps for you.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  <Textarea
+                    placeholder="e.g., Plan a 3-day trip to Paris for a family of four..."
+                    className="w-full resize-none min-h-[100px]"
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                    disabled={isLoading}
+                  />
+                  <Button onClick={handleAutomate} disabled={isLoading || !taskDescription.trim()}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Automate'}
+                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+
+                {automationResult && (
+                  <motion.div
+                    className="mt-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <h3 className="text-lg font-semibold">Generated Plan</h3>
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <h4 className="font-semibold">Steps:</h4>
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                          {automationResult.steps.map((step, index) => (
+                            <motion.li
+                              key={index}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3, delay: index * 0.1 }}
+                            >
+                              {step}
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">Explanation:</h4>
+                        <p className="text-sm text-muted-foreground mt-2">{automationResult.explanation}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </main>
       </SidebarInset>
     </div>
   );

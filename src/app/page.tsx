@@ -10,8 +10,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { personalizedResponse } from '@/ai/flows/personalized-response';
+import { cn } from '@/lib/utils';
 
 type Message = {
   text: string;
@@ -22,6 +23,7 @@ type Message = {
 export default function Home() {
   const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
   const aiAvatar = PlaceHolderImages.find((p) => p.id === 'ai-avatar');
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -31,6 +33,12 @@ export default function Home() {
   ]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
@@ -45,7 +53,7 @@ export default function Home() {
       const aiMessage: Message = {
         text: aiResponse.response,
         isUser: false,
-        badges: [], 
+        badges: [],
       };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
@@ -71,7 +79,7 @@ export default function Home() {
     <div className="flex h-screen w-full bg-background">
       <AppSidebar />
       <SidebarInset className="flex flex-col">
-        <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card">
+        <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
             <ModelSwitcher />
@@ -81,17 +89,23 @@ export default function Home() {
         </header>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6 space-y-8">
+          <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-6 space-y-8">
             {messages.map((message, index) => (
-              <div key={index} className={`flex items-start gap-4 ${message.isUser ? 'justify-end' : ''}`}>
+              <div key={index} className={cn('flex items-start gap-4', message.isUser ? 'justify-end' : '')}>
                 {!message.isUser && (
                   <Avatar className="h-9 w-9 border">
                     {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI Avatar" data-ai-hint={aiAvatar.imageHint} />}
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
                 )}
-                <div className={`flex-1 space-y-2 max-w-2xl ${message.isUser ? 'text-right' : ''}`}>
-                  <Card className={`${message.isUser ? 'bg-primary text-primary-foreground' : 'bg-white'} p-4 rounded-lg inline-block shadow-sm`}>
+                <div className={cn(
+                  'flex-1 space-y-2 max-w-2xl',
+                  message.isUser ? 'text-right' : ''
+                )}>
+                  <Card className={cn(
+                    'p-4 rounded-lg inline-block shadow-md',
+                     message.isUser ? 'bg-primary text-primary-foreground slide-in-right' : 'bg-card slide-in-left'
+                  )}>
                     <p className="text-sm">{message.text}</p>
                     {message.badges && message.badges.length > 0 && (
                        <div className="mt-4">
@@ -112,7 +126,7 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="border-t bg-card px-6 py-4">
+          <div className="border-t bg-card/50 backdrop-blur-sm px-6 py-4">
             <div className="relative">
               <Textarea
                 placeholder="Type your message..."
