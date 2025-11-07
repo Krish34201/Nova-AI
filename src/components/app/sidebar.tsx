@@ -3,10 +3,8 @@
 import {
   MessageSquare,
   Bot,
-  Code2,
   Book,
   Settings,
-  CreditCard,
   LifeBuoy,
 } from 'lucide-react'
 import {
@@ -50,14 +48,6 @@ export function AppSidebar() {
               <Link href="/agents">
                 <Bot />
                 <span>AI Agents</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/tools'} tooltip="Tools">
-              <Link href="/tools">
-                <Code2 />
-                <span>Tools</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
