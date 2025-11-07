@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { quotes, Quote } from '@/lib/quotes';
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lightbulb, Shuffle } from 'lucide-react';
+import { Lightbulb, Shuffle, Loader2 } from 'lucide-react';
+import { generateQuote } from '@/ai/flows/generate-quote';
+
 
 type Category = 'Motivational' | 'Emotional' | 'Love' | 'Friendship' | 'Life' | 'Humor' | 'Inspirational' | 'Success';
 const categories: Category[] = ['Motivational', 'Emotional', 'Love', 'Friendship', 'Life', 'Humor', 'Inspirational', 'Success'];
@@ -18,6 +20,7 @@ export default function InspirationsPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [visibleQuotes, setVisibleQuotes] = useState(QUOTES_PER_PAGE);
   const [randomQuote, setRandomQuote] = useState<Quote | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const filteredQuotes = useMemo(() => {
     if (selectedCategory === 'All') {
@@ -30,11 +33,18 @@ export default function InspirationsPage() {
     setVisibleQuotes((prev) => prev + QUOTES_PER_PAGE);
   };
 
-  const handleRandomQuote = () => {
-    const randomIndex = Math.floor(Math.random() * quotes.length);
-    setRandomQuote(quotes[randomIndex]);
-    setSelectedCategory('All');
-    setVisibleQuotes(QUOTES_PER_PAGE);
+  const handleRandomQuote = async () => {
+    setIsGenerating(true);
+    setRandomQuote(null);
+    try {
+      const result = await generateQuote({ category: 'Any' });
+      setRandomQuote(result as Quote);
+    } catch (error) {
+      console.error("Error generating quote:", error);
+      // Optionally, show an error toast to the user
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleCategorySelect = (category: Category | 'All') => {
@@ -57,9 +67,13 @@ export default function InspirationsPage() {
             <h1 className="text-xl font-semibold">Inspirations</h1>
           </div>
           <div className="ml-auto">
-            <Button onClick={handleRandomQuote}>
-              <Shuffle className="mr-2 h-4 w-4" />
-              Random Quote
+            <Button onClick={handleRandomQuote} disabled={isGenerating}>
+              {isGenerating ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Shuffle className="mr-2 h-4 w-4" />
+              )}
+              {isGenerating ? 'Generating...' : 'Generate AI Quote'}
             </Button>
           </div>
         </header>
@@ -85,7 +99,7 @@ export default function InspirationsPage() {
             </div>
 
             <AnimatePresence>
-              {randomQuote ? (
+              {(isGenerating || randomQuote) && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -93,43 +107,54 @@ export default function InspirationsPage() {
                   className="flex justify-center"
                 >
                   <Card className="w-full max-w-2xl shadow-2xl bg-card/80 backdrop-blur-sm transform hover:scale-105 transition-transform duration-300">
-                    <CardHeader>
-                      <CardTitle className="text-center text-primary">{randomQuote.category}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <p className="text-2xl font-semibold mb-4">"{randomQuote.quote}"</p>
-                      <p className="text-lg text-muted-foreground">- {randomQuote.author}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ) : (
-                <motion.div
-                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  {quotesToShow.map((quote, index) => (
-                    <motion.div
-                      key={`${quote.quote}-${index}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: (index % QUOTES_PER_PAGE) * 0.1 }}
-                    >
-                      <Card className="h-full flex flex-col justify-between transform hover:-translate-y-1 transition-transform duration-300">
-                        <CardContent className="pt-6">
-                          <p className="text-lg font-medium">"{quote.quote}"</p>
+                     {isGenerating ? (
+                        <CardContent className="pt-6 text-center h-48 flex flex-col items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                            <p className="text-muted-foreground">Generating your inspiration...</p>
                         </CardContent>
-                        <CardHeader className="pt-0">
-                          <CardDescription>- {quote.author}</CardDescription>
+                     ) : randomQuote && (
+                      <>
+                        <CardHeader>
+                          <CardTitle className="text-center text-primary">{randomQuote.category}</CardTitle>
                         </CardHeader>
-                      </Card>
-                    </motion.div>
-                  ))}
+                        <CardContent className="text-center">
+                          <p className="text-2xl font-semibold mb-4">"{randomQuote.quote}"</p>
+                          <p className="text-lg text-muted-foreground">- {randomQuote.author}</p>
+                        </CardContent>
+                      </>
+                     )}
+                  </Card>
                 </motion.div>
               )}
             </AnimatePresence>
+            
+            {!randomQuote && !isGenerating && (
+              <motion.div
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {quotesToShow.map((quote, index) => (
+                  <motion.div
+                    key={`${quote.quote}-${index}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: (index % QUOTES_PER_PAGE) * 0.1 }}
+                  >
+                    <Card className="h-full flex flex-col justify-between transform hover:-translate-y-1 transition-transform duration-300">
+                      <CardContent className="pt-6">
+                        <p className="text-lg font-medium">"{quote.quote}"</p>
+                      </CardContent>
+                      <CardHeader className="pt-0">
+                        <CardDescription>- {quote.author}</CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
 
-            {!randomQuote && canLoadMore && (
+            {!randomQuote && !isGenerating && canLoadMore && (
               <div className="flex justify-center mt-8">
                 <Button onClick={handleLoadMore}>Load More</Button>
               </div>
