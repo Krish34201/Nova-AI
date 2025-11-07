@@ -1,5 +1,3 @@
-// Summarizes a document's key points.
-
 'use server';
 
 import {ai} from '@/ai/genkit';
@@ -31,7 +29,11 @@ const prompt = ai.definePrompt({
   name: 'summarizeDocumentPrompt',
   input: {schema: SummarizeDocumentInputSchema},
   output: {schema: SummarizeDocumentOutputSchema},
-  prompt: `You are an expert summarizer. Summarize the key points of the following document.\n\nDocument: {{media url=documentDataUri}}`,
+  prompt: `You are a highly intelligent AI assistant specializing in document analysis and summarization. Your goal is to provide a clear, accurate, and concise summary of the provided document.
+
+Please analyze the following document and generate a professional summary that captures its key points and main arguments.
+
+Document: {{media url=documentDataUri}}`,
 });
 
 const summarizeDocumentFlow = ai.defineFlow(

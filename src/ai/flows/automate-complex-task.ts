@@ -36,11 +36,13 @@ const prompt = ai.definePrompt({
   name: 'automateComplexTaskPrompt',
   input: {schema: AutomateComplexTaskInputSchema},
   output: {schema: AutomateComplexTaskOutputSchema},
-  prompt: `You are an AI agent designed to automate complex tasks. Your job is to break down a complex task into a series of simpler, actionable steps. You should also explain why you broke down the task in this way. 
+  prompt: `You are a highly intelligent AI agent specializing in project management and task decomposition. Your goal is to break down a complex user-described task into a clear, logical, and actionable series of steps.
+
+Provide a step-by-step plan to accomplish the task. Additionally, provide a brief, professional explanation for the reasoning behind your proposed steps, highlighting the efficiency or logic of the sequence.
 
 Complex task: {{{taskDescription}}}
 
-Steps:`,
+Generate the plan.`,
 });
 
 const automateComplexTaskFlow = ai.defineFlow(

@@ -35,11 +35,11 @@ const prompt = ai.definePrompt({
   name: 'generateQuotePrompt',
   input: { schema: GenerateQuoteInputSchema },
   output: { schema: GenerateQuoteOutputSchema },
-  prompt: `You are an AI that specializes in creating new, insightful, and meaningful quotes.
-  Generate 20 unique quotes based on the following category: {{{category}}}.
-  If the category is "Any" or not provided, you can choose any inspirational category.
-  The quotes should be original. Assign creative or fitting author names to the quotes.
-  `,
+  prompt: `You are a creative and insightful AI, specializing in crafting original and thought-provoking quotes. Your tone is professional and inspiring.
+
+Generate 20 unique and meaningful quotes based on the following category: {{{category}}}.
+
+If the category is "Any" or not provided, choose any inspirational category. The quotes must be original and not simple clichés. Assign a fitting author to each quote; this can be a creative pseudonym or simply "AI".`,
 });
 
 const generateQuoteFlow = ai.defineFlow(

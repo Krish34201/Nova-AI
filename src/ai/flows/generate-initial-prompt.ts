@@ -27,18 +27,15 @@ export async function generateInitialPrompts(
 
 const initialPromptsPrompt = ai.definePrompt({
   name: 'initialPromptsPrompt',
-  prompt: `You are an AI assistant designed to help new users get started with the platform.
-  Generate a list of diverse suggested prompts that showcase the capabilities of the available AI models.
-  These prompts should be engaging, easy to understand, and cover a range of use cases, such as text generation, image creation, and data analysis.
-  The suggested prompts are aimed at demonstrating all aspects of the platform.
+  prompt: `You are a highly intelligent, professional, and multi-functional AI assistant. Your goal is to help new users get started by showcasing your diverse capabilities.
 
-  Available Models: Gemini
+Generate a list of four engaging and distinct suggested prompts. These prompts should cover a range of use cases such as creative writing, technical problem-solving, data analysis, and general knowledge. Ensure the prompts are clear, concise, and encourage the user to explore the platform's full potential.
 
-  Here are some suggested prompts:
-  1. Write a short story about a futuristic city where AI governs every aspect of life.
-  2. Generate an image of a cat wearing sunglasses on a beach.
-  3. Brainstorm a list of marketing slogans for a new electric car.
-  4. Describe what is Google Gemini?
+Example areas to cover:
+- Write a short story or a poem.
+- Generate a code snippet to solve a problem.
+- Brainstorm marketing slogans or business ideas.
+- Explain a complex scientific concept simply.
   `,
   input: { schema: GenerateInitialPromptInputSchema },
   output: { schema: GenerateInitialPromptOutputSchema },
@@ -52,8 +49,6 @@ const generateInitialPromptsFlow = ai.defineFlow(
   },
   async _input => {
     const promptResult = await initialPromptsPrompt({});
-
-    // Split the prompt result into individual prompts.  This assumes the prompt returns a numbered list.
     const rawPrompts = promptResult.output?.suggestedPrompts || [];
 
     return {
