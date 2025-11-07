@@ -14,7 +14,7 @@ const AnimatedBackground = () => {
     return null;
   }
 
-  const particleCount = 50;
+  const particleCount = 100;
   const particles = Array.from({ length: particleCount });
 
   return (
