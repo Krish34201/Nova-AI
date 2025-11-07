@@ -3,32 +3,54 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 
+type Dot = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+};
+
 const AnimatedBackground = React.memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolvedTheme } = useTheme();
+  const dotsRef = useRef<Dot[]>([]);
 
-  const draw = useCallback((ctx: CanvasRenderingContext2D, frameCount: number, theme: string | undefined) => {
-    const primaryColor = theme === 'dark' ? 'hsl(204 100% 50%)' : 'hsl(204 100% 50%)'; // Electric Blue
-    const backgroundColor = theme === 'dark' ? 'hsl(222 84% 4.9%)' : 'hsl(222 84% 4.9%)';
+  const initializeDots = useCallback((width: number, height: number) => {
+    const newDots: Dot[] = [];
+    const gridSize = 40;
+    for (let x = 0; x < width; x += gridSize) {
+      for (let y = 0; y < height; y += gridSize) {
+        newDots.push({ 
+          x: x + Math.random() * gridSize, 
+          y: y + Math.random() * gridSize,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3
+        });
+      }
+    }
+    dotsRef.current = newDots;
+  }, []);
 
+  const draw = useCallback((ctx: CanvasRenderingContext2D, theme: string | undefined) => {
+    const backgroundColor = 'hsl(222 84% 4.9%)';
     const canvas = ctx.canvas;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
     
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const gridSize = 40;
     const dotSize = 1;
     const lineThreshold = 100;
     
-    const dots = [];
-    for (let x = 0; x < canvas.width; x += gridSize) {
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        dots.push({ x, y });
-      }
-    }
+    const dots = dotsRef.current;
+
+    // Update dot positions
+    dots.forEach(dot => {
+      dot.x += dot.vx;
+      dot.y += dot.vy;
+
+      if (dot.x < 0 || dot.x > canvas.width) dot.vx *= -1;
+      if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
+    });
     
     ctx.strokeStyle = `rgba(0, 191, 255, 0.1)`;
     ctx.lineWidth = 0.5;
@@ -64,21 +86,24 @@ const AnimatedBackground = React.memo(() => {
     const context = canvas.getContext('2d');
     if (!context) return;
     
-    let frameCount = 0;
     let animationFrameId: number;
+    
+    const setup = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initializeDots(canvas.width, canvas.height);
+    };
 
     const render = () => {
-      frameCount++;
-      draw(context, frameCount, resolvedTheme);
+      draw(context, resolvedTheme);
       animationFrameId = window.requestAnimationFrame(render);
     };
     
+    setup();
     render();
 
     const handleResize = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        draw(context, frameCount, resolvedTheme);
+        setup();
     };
 
     window.addEventListener('resize', handleResize);
@@ -87,7 +112,7 @@ const AnimatedBackground = React.memo(() => {
       window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [draw, resolvedTheme]);
+  }, [draw, resolvedTheme, initializeDots]);
 
   return (
     <div className="fixed inset-0 w-full h-full z-[-1] overflow-hidden bg-background">
