@@ -66,21 +66,11 @@ export default function InspirationsPage() {
             <Lightbulb className="h-6 w-6" />
             <h1 className="text-xl font-semibold">Inspirations</h1>
           </div>
-          <div className="ml-auto">
-            <Button onClick={handleRandomQuote} disabled={isGenerating}>
-              {isGenerating ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Shuffle className="mr-2 h-4 w-4" />
-              )}
-              {isGenerating ? 'Generating...' : 'Generate AI Quote'}
-            </Button>
-          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
               <Button
                 variant={selectedCategory === 'All' ? 'default' : 'outline'}
                 onClick={() => handleCategorySelect('All')}
@@ -96,6 +86,17 @@ export default function InspirationsPage() {
                   {cat}
                 </Button>
               ))}
+            </div>
+
+            <div className="flex justify-center mb-8">
+              <Button onClick={handleRandomQuote} disabled={isGenerating} size="lg">
+                {isGenerating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Shuffle className="mr-2 h-4 w-4" />
+                )}
+                {isGenerating ? 'Generating...' : 'Generate AI Quote'}
+              </Button>
             </div>
 
             <AnimatePresence>
