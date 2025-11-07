@@ -71,14 +71,6 @@ export function AppSidebar() {
       <SidebarFooter className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Subscription">
-              <Link href="#">
-                <CreditCard />
-                <span>Subscription</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
               <Link href="#">
                 <Settings />

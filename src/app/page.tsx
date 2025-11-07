@@ -23,7 +23,6 @@ export default function Home() {
             <ModelSwitcher />
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <Button variant="outline">Subscription</Button>
           </div>
         </header>
 
