@@ -19,7 +19,7 @@ export default function MemoryPage() {
 
         <main className="flex-1 flex items-center justify-center p-6">
            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <Card className="w-full max-w-2xl text-center shadow-2xl">
+            <Card className="w-full max-w-2xl text-center shadow-2xl bg-card/80 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex justify-center mb-4">
                   <Book className="h-12 w-12 text-primary" />
@@ -41,3 +41,5 @@ export default function MemoryPage() {
     </div>
   )
 }
+
+    

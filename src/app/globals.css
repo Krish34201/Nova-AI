@@ -8,44 +8,44 @@ body {
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%; /* Dark Slate Blue */
-    --foreground: 0 0% 98%; /* White */
+    --background: 0 0% 100%; /* White */
+    --foreground: 240 10% 3.9%; /* Dark Slate Blue */
     
-    --card: 240 4.8% 12%; /* Slightly lighter slate */
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 98%; /* Light Gray */
+    --card-foreground: 240 10% 3.9%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 210 40% 98%; /* Bright Blue */
-    --primary-foreground: 210 40% 9.8%;
+    --primary: 210 40% 50%; /* Main Blue */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 210 40% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 210 40% 50%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 240 10% 3.9%;
-    --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 210 40% 9.8%;
-    --sidebar-accent: 240 4.8% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4.8% 12%;
-    --sidebar-ring: 210 40% 98%;
+    --sidebar-background: 240 10% 99%;
+    --sidebar-foreground: 240 10% 20%;
+    --sidebar-primary: 210 40% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 93%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 210 40% 50%;
   }
 
   .dark {
@@ -249,3 +249,5 @@ body {
 .particle:nth-child(98) { top: 74%; left: 26%; animation-duration: 5s; animation-delay: -3.5s; width: 1px; height: 1px; }
 .particle:nth-child(99) { top: 26%; left: 74%; animation-duration: 8s; animation-delay: -8.5s; width: 2px; height: 2px; }
 .particle:nth-child(100) { top: 54%; left: 46%; animation-duration: 4s; animation-delay: -5.5s; width: 1px; height: 1px; }
+
+    
