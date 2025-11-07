@@ -22,15 +22,15 @@ import {
 const models = [
   {
     value: "gemini",
-    label: "Google Gemini",
+    label: "Nova AI v1.0",
   },
   {
     value: "llama",
-    label: "Llama",
+    label: "Nova AI v2.0",
   },
   {
     value: "mistral",
-    label: "Mistral",
+    label: "Nova AI v3.0",
   },
 ]
 
