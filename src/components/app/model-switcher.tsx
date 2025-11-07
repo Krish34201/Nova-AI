@@ -34,11 +34,21 @@ const models = [
   },
 ]
 
-type Model = (typeof models)[number]
+export type Model = (typeof models)[number]
 
-export function ModelSwitcher({ className }: React.HTMLAttributes<HTMLDivElement>) {
+interface ModelSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
+    onModelChange?: (model: Model) => void;
+}
+
+export function ModelSwitcher({ className, onModelChange }: ModelSwitcherProps) {
   const [open, setOpen] = React.useState(false)
   const [selectedModel, setSelectedModel] = React.useState<Model>(models[0])
+
+  React.useEffect(() => {
+    if (onModelChange) {
+      onModelChange(selectedModel)
+    }
+  }, [selectedModel, onModelChange])
 
   return (
     <div className={cn("flex items-center space-x-4", className)}>
@@ -66,9 +76,8 @@ export function ModelSwitcher({ className }: React.HTMLAttributes<HTMLDivElement
                     key={model.value}
                     value={model.value}
                     onSelect={(currentValue) => {
-                      setSelectedModel(
-                        models.find((m) => m.value === currentValue) || models[0]
-                      )
+                      const newSelectedModel = models.find((m) => m.value === currentValue) || models[0];
+                      setSelectedModel(newSelectedModel);
                       setOpen(false)
                     }}
                   >
