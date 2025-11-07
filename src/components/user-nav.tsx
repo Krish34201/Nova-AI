@@ -9,34 +9,46 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { useUsername } from "@/components/username-provider"
+import { Skeleton } from "./ui/skeleton"
 
 export function UserNav() {
-  const user = {
-    name: "Starlight",
-    email: "starlight@nova.ai",
-  }
+  const { username, setUsername, isLoading } = useUsername();
   const userAvatar = PlaceHolderImages.find(p => p.id === 'user-avatar');
+
+  const handleLogout = () => {
+    // Also remove from local storage
+    localStorage.removeItem('username');
+    setUsername(null);
+  };
+
+  if (isLoading) {
+    return <Skeleton className="h-9 w-9 rounded-full" />;
+  }
+
+  if (!username) {
+    return null; // Or a login button
+  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt={`@${user.name}`} data-ai-hint={userAvatar.imageHint} />}
-            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt={`@${username}`} data-ai-hint={userAvatar.imageHint} />}
+            <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{username}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              Guest User
             </p>
           </div>
         </DropdownMenuLabel>
@@ -44,17 +56,14 @@ export function UserNav() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
             Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
             Logout
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

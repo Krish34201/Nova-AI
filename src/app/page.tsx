@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { useState, useRef, useEffect } from 'react';
 import { personalizedResponse } from '@/ai/flows/personalized-response';
 import { cn } from '@/lib/utils';
+import { useUsername } from '@/components/username-provider';
 
 type Message = {
   text: string;
@@ -24,6 +25,7 @@ export default function Home() {
   const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
   const aiAvatar = PlaceHolderImages.find((p) => p.id === 'ai-avatar');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { username } = useUsername();
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -49,7 +51,7 @@ export default function Home() {
     setInput('');
 
     try {
-      const aiResponse = await personalizedResponse({ query: input });
+      const aiResponse = await personalizedResponse({ query: input, userName: username || undefined });
       const aiMessage: Message = {
         text: aiResponse.response,
         isUser: false,
@@ -119,7 +121,7 @@ export default function Home() {
                 {message.isUser && (
                   <Avatar className="h-9 w-9 border">
                     {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" data-ai-hint={userAvatar.imageHint} />}
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback>{username ? username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
                   </Avatar>
                 )}
               </div>
