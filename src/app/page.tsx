@@ -1,3 +1,5 @@
+'use client';
+
 import { AppSidebar } from '@/components/app/sidebar'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { ModelSwitcher } from '@/components/app/model-switcher'
@@ -8,10 +10,62 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useState } from 'react';
+import { personalizedResponse } from '@/ai/flows/personalized-response';
+
+type Message = {
+  text: string;
+  isUser: boolean;
+  badges?: string[];
+};
 
 export default function Home() {
-  const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar')
-  const aiAvatar = PlaceHolderImages.find((p) => p.id === 'ai-avatar')
+  const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
+  const aiAvatar = PlaceHolderImages.find((p) => p.id === 'ai-avatar');
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      text: 'Hello! I am Nova, your advanced AI assistant. How can I help you today?',
+      isUser: false,
+    },
+  ]);
+  const [input, setInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSend = async () => {
+    if (input.trim() === '') return;
+
+    setIsSending(true);
+    const userMessage: Message = { text: input, isUser: true };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+
+    try {
+      const aiResponse = await personalizedResponse({ query: input });
+      const aiMessage: Message = {
+        text: aiResponse.response,
+        isUser: false,
+        badges: [], 
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      const errorMessage: Message = {
+        text: 'Sorry, I encountered an error. Please try again.',
+        isUser: false,
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   return (
     <div className="flex h-screen w-full bg-background">
@@ -28,50 +82,34 @@ export default function Home() {
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6 space-y-8">
-            <div className="flex items-start gap-4">
-              <Avatar className="h-9 w-9 border">
-                {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI Avatar" data-ai-hint={aiAvatar.imageHint} />}
-                <AvatarFallback>AI</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-2">
-                <Card className="bg-white rounded-lg p-4 shadow-sm max-w-2xl">
-                  <p className="text-sm">
-                    Hello! I am Nova, your advanced AI assistant. How can I help you today?
-                  </p>
-                </Card>
+            {messages.map((message, index) => (
+              <div key={index} className={`flex items-start gap-4 ${message.isUser ? 'justify-end' : ''}`}>
+                {!message.isUser && (
+                  <Avatar className="h-9 w-9 border">
+                    {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI Avatar" data-ai-hint={aiAvatar.imageHint} />}
+                    <AvatarFallback>AI</AvatarFallback>
+                  </Avatar>
+                )}
+                <div className={`flex-1 space-y-2 max-w-2xl ${message.isUser ? 'text-right' : ''}`}>
+                  <Card className={`${message.isUser ? 'bg-primary text-primary-foreground' : 'bg-white'} p-4 rounded-lg inline-block shadow-sm`}>
+                    <p className="text-sm">{message.text}</p>
+                    {message.badges && message.badges.length > 0 && (
+                       <div className="mt-4">
+                        {message.badges.map((badge, i) => (
+                           <Badge key={i} variant="secondary" className="ml-2">{badge}</Badge>
+                        ))}
+                       </div>
+                    )}
+                  </Card>
+                </div>
+                {message.isUser && (
+                  <Avatar className="h-9 w-9 border">
+                    {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" data-ai-hint={userAvatar.imageHint} />}
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                )}
               </div>
-            </div>
-
-            <div className="flex items-start gap-4 justify-end">
-              <div className="flex-1 space-y-2 max-w-2xl text-right">
-                <Card className="bg-primary text-primary-foreground p-4 rounded-lg inline-block shadow-sm">
-                  <p className="text-sm">What's the latest news on AI?</p>
-                </Card>
-              </div>
-              <Avatar className="h-9 w-9 border">
-                {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" data-ai-hint={userAvatar.imageHint} />}
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-            </div>
-            
-            <div className="flex items-start gap-4">
-              <Avatar className="h-9 w-9 border">
-                {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI Avatar" data-ai-hint={aiAvatar.imageHint} />}
-                <AvatarFallback>AI</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-2">
-                <Card className="bg-white rounded-lg p-4 shadow-sm max-w-2xl">
-                    <p className="text-sm">
-                        Certainly. As of today, there's significant buzz around advancements in multi-modal models. Google has just released a new version of Gemini that shows impressive capabilities in understanding both text and video simultaneously. Also, there's a growing trend in open-source models, with platforms like Hugging Face seeing a surge in community-contributed models that are surprisingly powerful.
-                    </p>
-                    <div className="mt-4">
-                        <Badge variant="secondary">Web Search</Badge>
-                        <Badge variant="secondary" className="ml-2">Real-time Data</Badge>
-                    </div>
-                </Card>
-              </div>
-            </div>
-
+            ))}
           </div>
 
           <div className="border-t bg-card px-6 py-4">
@@ -80,6 +118,10 @@ export default function Home() {
                 placeholder="Type your message..."
                 className="w-full resize-none bg-input pr-28 pl-10 min-h-[48px] rounded-2xl"
                 rows={1}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isSending}
               />
               <div className="absolute top-1/2 left-3 transform -translate-y-1/2 flex items-center">
                 <Button variant="ghost" size="icon" className="rounded-full">
@@ -90,7 +132,7 @@ export default function Home() {
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Mic className="h-5 w-5" />
                 </Button>
-                <Button size="icon" className="rounded-full">
+                <Button size="icon" className="rounded-full" onClick={handleSend} disabled={isSending}>
                   <Send className="h-5 w-5" />
                 </Button>
               </div>
