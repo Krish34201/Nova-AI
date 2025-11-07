@@ -5,35 +5,45 @@ import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { ModelSwitcher } from '@/components/app/model-switcher'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Paperclip, Send, Mic } from 'lucide-react'
+import { Paperclip, Send, Mic, X, File as FileIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useState, useRef, useEffect } from 'react';
 import { personalizedResponse } from '@/ai/flows/personalized-response';
+import { summarizeDocument } from '@/ai/flows/summarize-document';
 import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
+import Image from 'next/image';
 
 type Message = {
   text: string;
   isUser: boolean;
   badges?: string[];
+  image?: string;
+  file?: {
+    name: string;
+    type: string;
+  };
 };
 
 export default function Home() {
   const aiAvatar = PlaceHolderImages.find((p) => p.id === 'ai-avatar');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { username } = useUsername();
 
   const [messages, setMessages] = useState<Message[]>([
     {
-      text: 'Hello! I am Nova, your advanced AI assistant. How can I help you today?',
+      text: 'Hello! I am Nova, your advanced AI assistant. How can I help you today? You can also upload a document for me to summarize.',
       isUser: false,
     },
   ]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -41,22 +51,95 @@ export default function Home() {
     }
   }, [messages]);
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setAttachedFile(file);
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview(null);
+      }
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachedFile(null);
+    setFilePreview(null);
+    if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
+  }
+
   const handleSend = async () => {
-    if (input.trim() === '') return;
+    if (input.trim() === '' && !attachedFile) return;
 
     setIsSending(true);
+
     const userMessage: Message = { text: input, isUser: true };
+    if (attachedFile) {
+        userMessage.file = { name: attachedFile.name, type: attachedFile.type };
+        if (filePreview) {
+            userMessage.image = filePreview;
+        }
+    }
+
     setMessages(prev => [...prev, userMessage]);
     setInput('');
+    
+    const currentFile = attachedFile;
+    removeAttachment();
 
     try {
-      const aiResponse = await personalizedResponse({ query: input, userName: username || undefined });
-      const aiMessage: Message = {
-        text: aiResponse.response,
-        isUser: false,
-        badges: [],
-      };
-      setMessages(prev => [...prev, aiMessage]);
+      let aiResponse;
+
+      if (currentFile) {
+         // If there is a file, we assume it's for summarization for now.
+         const reader = new FileReader();
+         reader.readAsDataURL(currentFile);
+         reader.onload = async () => {
+            const documentDataUri = reader.result as string;
+            try {
+                const summaryResponse = await summarizeDocument({ documentDataUri });
+                 const aiMessage: Message = {
+                    text: `Summary for ${currentFile.name}:\n\n${summaryResponse.summary}`,
+                    isUser: false,
+                 };
+                 setMessages(prev => [...prev, aiMessage]);
+            } catch (error) {
+                 console.error('Error summarizing document:', error);
+                 const errorMessage: Message = {
+                    text: 'Sorry, I had trouble processing that document. Please try again.',
+                    isUser: false,
+                 };
+                 setMessages(prev => [...prev, errorMessage]);
+            } finally {
+                 setIsSending(false);
+            }
+         };
+         reader.onerror = (error) => {
+             console.error('Error reading file:', error);
+             const errorMessage: Message = {
+                text: 'Sorry, I could not read the uploaded file.',
+                isUser: false,
+             };
+             setMessages(prev => [...prev, errorMessage]);
+             setIsSending(false);
+         };
+         return; // The response will be handled in the onload callback
+      } else {
+        aiResponse = await personalizedResponse({ query: input, userName: username || undefined });
+        const aiMessage: Message = {
+            text: aiResponse.response,
+            isUser: false,
+            badges: [],
+        };
+        setMessages(prev => [...prev, aiMessage]);
+      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       const errorMessage: Message = {
@@ -107,7 +190,16 @@ export default function Home() {
                     'p-4 rounded-lg inline-block shadow-md',
                      message.isUser ? 'bg-primary text-primary-foreground slide-in-right' : 'bg-card slide-in-left'
                   )}>
-                    <p className="text-sm">{message.text}</p>
+                    {message.image && (
+                      <Image src={message.image} alt="Uploaded image" width={200} height={200} className="rounded-md mb-2"/>
+                    )}
+                    {message.file && !message.image && (
+                      <div className="flex items-center gap-2 mb-2 p-2 rounded-md bg-background/50">
+                        <FileIcon className="h-5 w-5"/>
+                        <span className="text-sm">{message.file.name}</span>
+                      </div>
+                    )}
+                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                     {message.badges && message.badges.length > 0 && (
                        <div className="mt-4">
                         {message.badges.map((badge, i) => (
@@ -124,10 +216,39 @@ export default function Home() {
                 )}
               </div>
             ))}
+             {isSending && messages[messages.length-1]?.isUser && (
+                <div className={cn('flex items-start gap-4')}>
+                    <Avatar className="h-9 w-9 border">
+                        {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI Avatar" />}
+                        <AvatarFallback>AI</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-2 max-w-2xl">
+                        <Card className="p-4 rounded-lg inline-block shadow-md bg-card slide-in-left">
+                            <p className="text-sm">Thinking...</p>
+                        </Card>
+                    </div>
+                </div>
+            )}
           </div>
 
           <div className="border-t bg-card/50 backdrop-blur-sm px-6 py-4">
+            {attachedFile && (
+              <div className="relative mb-2 w-fit">
+                {filePreview ? (
+                    <Image src={filePreview} alt="Preview" width={80} height={80} className="rounded-md"/>
+                ) : (
+                    <div className="flex items-center gap-2 p-2 rounded-md bg-input">
+                        <FileIcon className="h-6 w-6"/>
+                        <span className="text-sm">{attachedFile.name}</span>
+                    </div>
+                )}
+                 <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-muted text-muted-foreground" onClick={removeAttachment}>
+                    <X className="h-4 w-4"/>
+                </Button>
+              </div>
+            )}
             <div className="relative">
+             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
               <Textarea
                 placeholder="Type your message..."
                 className="w-full resize-none bg-input pr-28 pl-10 min-h-[48px] rounded-2xl"
@@ -138,12 +259,12 @@ export default function Home() {
                 disabled={isSending}
               />
               <div className="absolute top-1/2 left-3 transform -translate-y-1/2 flex items-center">
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
                   <Paperclip className="h-5 w-5" />
                 </Button>
               </div>
               <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full" disabled={isSending}>
                   <Mic className="h-5 w-5" />
                 </Button>
                 <Button size="icon" className="rounded-full" onClick={handleSend} disabled={isSending}>
