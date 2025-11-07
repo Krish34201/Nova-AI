@@ -4,6 +4,7 @@ import {
   MessageSquare,
   Bot,
   Book,
+  Lightbulb,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -50,6 +51,14 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/inspirations'} tooltip="Inspirations">
+              <Link href="/inspirations">
+                <Lightbulb />
+                <span>Inspirations</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/memory'} tooltip="Memory">
               <Link href="/memory">
                 <Book />
@@ -67,5 +76,3 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
-
-    
