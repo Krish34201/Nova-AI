@@ -183,7 +183,7 @@ export default function Home() {
         <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
-             <h1 className="text-xl font-semibold">Nova AI</h1>
+             <h1 className="text-xl font-semibold">Nova AI v1.0</h1>
           </div>
           <div className="ml-auto flex items-center gap-4">
           </div>
@@ -301,5 +301,3 @@ export default function Home() {
     </div>
   )
 }
-
-    
