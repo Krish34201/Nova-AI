@@ -5,7 +5,6 @@ import {
   Bot,
   Book,
   Settings,
-  LifeBuoy,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -68,14 +67,6 @@ export function AppSidebar() {
               <Link href="#">
                 <Settings />
                 <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Support">
-              <Link href="#">
-                <LifeBuoy />
-                <span>Support</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
