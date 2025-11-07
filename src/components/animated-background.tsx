@@ -17,14 +17,14 @@ const AnimatedBackground = React.memo(() => {
 
   const initializeDots = useCallback((width: number, height: number) => {
     const newDots: Dot[] = [];
-    const gridSize = 40;
+    const gridSize = 50; // Increased grid size for fewer dots
     for (let x = 0; x < width; x += gridSize) {
       for (let y = 0; y < height; y += gridSize) {
         newDots.push({ 
           x: x + Math.random() * gridSize, 
           y: y + Math.random() * gridSize,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3
+          vx: (Math.random() - 0.5) * 0.2, // Slower velocity
+          vy: (Math.random() - 0.5) * 0.2
         });
       }
     }
@@ -33,13 +33,14 @@ const AnimatedBackground = React.memo(() => {
 
   const draw = useCallback((ctx: CanvasRenderingContext2D, theme: string | undefined) => {
     const backgroundColor = 'hsl(222 84% 4.9%)';
+    const accentColor = 'hsl(204 100% 50%)'; // Electric Blue from theme
     const canvas = ctx.canvas;
     
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const dotSize = 1;
-    const lineThreshold = 100;
+    const dotSize = 2;
+    const lineThreshold = 120;
     
     const dots = dotsRef.current;
 
@@ -52,7 +53,11 @@ const AnimatedBackground = React.memo(() => {
       if (dot.y < 0 || dot.y > canvas.height) dot.vy *= -1;
     });
     
-    ctx.strokeStyle = `rgba(0, 191, 255, 0.1)`;
+    // Set up glow effect for lines and dots
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = accentColor;
+
+    ctx.strokeStyle = `rgba(0, 191, 255, 0.15)`;
     ctx.lineWidth = 0.5;
 
     for (let i = 0; i < dots.length; i++) {
@@ -61,6 +66,8 @@ const AnimatedBackground = React.memo(() => {
         const dy = dots[i].y - dots[j].y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         if (distance < lineThreshold) {
+          const opacity = 1 - (distance / lineThreshold);
+          ctx.strokeStyle = `rgba(0, 191, 255, ${opacity * 0.15})`;
           ctx.beginPath();
           ctx.moveTo(dots[i].x, dots[i].y);
           ctx.lineTo(dots[j].x, dots[j].y);
@@ -72,9 +79,12 @@ const AnimatedBackground = React.memo(() => {
     dots.forEach(dot => {
       ctx.beginPath();
       ctx.arc(dot.x, dot.y, dotSize, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(0, 191, 255, 0.5)`;
+      ctx.fillStyle = accentColor;
       ctx.fill();
     });
+
+    // Reset shadow for other canvas drawings if any
+    ctx.shadowBlur = 0;
 
   }, []);
 
