@@ -161,9 +161,9 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background">
+    <div className="flex h-screen w-full bg-transparent">
       <AppSidebar />
-      <SidebarInset className="flex flex-col">
+      <SidebarInset className="flex flex-col bg-transparent">
         <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
@@ -227,7 +227,12 @@ export default function Home() {
                         {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI Avatar" />}
                         <AvatarFallback>AI</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 space-y-2 max-w-2xl">
+                    <motion.div 
+                      className="flex-1 space-y-2 max-w-2xl"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
                         <Card className="p-4 rounded-lg inline-block shadow-md bg-card">
                              <div className="flex items-center justify-center gap-2">
                                 <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]" />
@@ -235,7 +240,7 @@ export default function Home() {
                                 <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse" />
                             </div>
                         </Card>
-                    </div>
+                    </motion.div>
                 </div>
             )}
           </div>

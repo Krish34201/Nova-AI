@@ -1,0 +1,31 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
+
+const AnimatedBackground = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  const particleCount = 50;
+  const particles = Array.from({ length: particleCount });
+
+  return (
+    <div className="fixed inset-0 w-full h-full z-0 overflow-hidden bg-background">
+      <div className="particle-container">
+        {particles.map((_, i) => (
+          <div key={i} className="particle" />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default AnimatedBackground;
