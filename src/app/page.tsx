@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/app/sidebar'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Paperclip, Send, Mic, X, File as FileIcon, Image as ImageIcon, Wand2 } from 'lucide-react'
+import { Paperclip, Send, Mic, X, File as FileIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Card } from '@/components/ui/card'
@@ -12,7 +12,6 @@ import { Badge } from '@/components/ui/badge'
 import { useState, useRef, useEffect } from 'react';
 import { personalizedResponse } from '@/ai/flows/personalized-response';
 import { summarizeDocument } from '@/ai/flows/summarize-document';
-import { generateImage } from '@/ai/flows/generate-image';
 import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
 import Image from 'next/image';
@@ -44,7 +43,6 @@ export default function Home() {
   const [isSending, setIsSending] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [isImageGenMode, setIsImageGenMode] = useState(false);
 
 
   useEffect(() => {
@@ -98,16 +96,7 @@ export default function Home() {
     removeAttachment();
 
     try {
-      if (isImageGenMode) {
-          const imageResponse = await generateImage({ prompt: currentInput });
-          const aiMessage: Message = {
-              text: `Here is the image you requested for: "${currentInput}"`,
-              isUser: false,
-              image: imageResponse.imageDataUri,
-          };
-          setMessages(prev => [...prev, aiMessage]);
-          setIsImageGenMode(false);
-      } else if (currentFile) {
+      if (currentFile) {
          // If there is a file, we assume it's for summarization for now.
          const reader = new FileReader();
          reader.readAsDataURL(currentFile);
@@ -169,12 +158,6 @@ export default function Home() {
       handleSend();
     }
   };
-  
-  const toggleImageGenMode = () => {
-    setIsImageGenMode(prev => !prev);
-    setAttachedFile(null);
-    setFilePreview(null);
-  }
 
   return (
     <div className="flex h-screen w-full bg-background">
@@ -208,7 +191,7 @@ export default function Home() {
                      message.isUser ? 'bg-primary text-primary-foreground slide-in-right' : 'bg-card slide-in-left'
                   )}>
                     {message.image && (
-                      <Image src={message.image} alt="Generated or uploaded image" width={300} height={300} className="rounded-md mb-2 max-w-full h-auto"/>
+                      <Image src={message.image} alt="Uploaded image" width={300} height={300} className="rounded-md mb-2 max-w-full h-auto"/>
                     )}
                     {message.file && !message.image && (
                       <div className="flex items-center gap-2 mb-2 p-2 rounded-md bg-background/50">
@@ -267,7 +250,7 @@ export default function Home() {
             <div className="relative">
              <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
               <Textarea
-                placeholder={isImageGenMode ? "Describe an image to generate..." : "Type your message..."}
+                placeholder={"Type your message..."}
                 className="w-full resize-none bg-input pr-28 pl-10 min-h-[48px] rounded-2xl"
                 rows={1}
                 value={input}
@@ -276,14 +259,11 @@ export default function Home() {
                 disabled={isSending}
               />
               <div className="absolute top-1/2 left-3 transform -translate-y-1/2 flex items-center">
-                 <Button variant={isImageGenMode ? "secondary" : "ghost"} size="icon" className="rounded-full" onClick={toggleImageGenMode} disabled={isSending}>
-                    <Wand2 className="h-5 w-5" />
+                 <Button variant="ghost" size="icon" className="rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
+                    <Paperclip className="h-5 w-5" />
                  </Button>
               </div>
               <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
-                <Button variant="ghost" size="icon" className="rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isSending || isImageGenMode}>
-                  <Paperclip className="h-5 w-5" />
-                </Button>
                 <Button variant="ghost" size="icon" className="rounded-full" disabled={isSending}>
                   <Mic className="h-5 w-5" />
                 </Button>

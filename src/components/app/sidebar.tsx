@@ -4,7 +4,6 @@ import {
   MessageSquare,
   Bot,
   Book,
-  Wand2,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -47,14 +46,6 @@ export function AppSidebar() {
               <Link href="/agents">
                 <Bot />
                 <span>AI Agents</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/image-generation'} tooltip="Image Generation">
-              <Link href="/image-generation">
-                <Wand2 />
-                <span>Image Generation</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
