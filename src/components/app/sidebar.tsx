@@ -5,7 +5,8 @@ import {
   Bot,
   HeartHandshake,
   History,
-  GraduationCap
+  GraduationCap,
+  BookText
 } from 'lucide-react'
 import {
   Sidebar,
@@ -74,6 +75,14 @@ export function AppSidebar() {
               <Link href="/agents" onClick={handleLinkClick}>
                 <Bot />
                 <span>AI Agents</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/stories'} tooltip="Stories">
+              <Link href="/stories" onClick={handleLinkClick}>
+                <BookText />
+                <span>Stories</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
