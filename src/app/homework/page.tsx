@@ -9,13 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { homeworkHelper, type HomeworkHelperOutput } from '@/ai/flows/homework-helper';
-import { Loader2, Wand2, BookMarked, Upload, X, Camera } from 'lucide-react';
+import { Loader2, Wand2, BookMarked, Upload, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const wordLimits = ["20-30 words", "30-40 words", "40-50 words", "50-70 words", "No limit"];
+const classes = Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`);
 const subjects = ["Maths", "Science", "English", "Social Science", "History", "Geography"];
 const styles = ["Simple", "Detailed", "Exam-Oriented"];
 
@@ -23,6 +23,7 @@ export default function HomeworkPage() {
   const { toast } = useToast();
   const [question, setQuestion] = useState('');
   const [wordLimit, setWordLimit] = useState(wordLimits[0]);
+  const [classLevel, setClassLevel] = useState('none');
   const [subject, setSubject] = useState('none');
   const [style, setStyle] = useState('default');
   
@@ -71,6 +72,7 @@ export default function HomeworkPage() {
             question: question,
             imageDataUri: uploadedImage || undefined,
             wordLimit: wordLimit,
+            classLevel: classLevel === 'none' ? undefined : classLevel,
             subject: subject === 'none' ? undefined : subject,
             style: style === 'default' ? undefined : style,
         };
@@ -160,15 +162,27 @@ export default function HomeworkPage() {
                                 </Select>
                             </div>
                         </div>
-                        <div>
-                            <label className="font-medium text-sm mb-2 block">Subject (Optional)</label>
-                            <Select value={subject} onValueChange={setSubject} disabled={isLoading}>
-                                <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">None</SelectItem>
-                                    {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="font-medium text-sm mb-2 block">Class (Optional)</label>
+                                <Select value={classLevel} onValueChange={setClassLevel} disabled={isLoading}>
+                                    <SelectTrigger><SelectValue placeholder="Select a class" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">None</SelectItem>
+                                        {classes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="font-medium text-sm mb-2 block">Subject (Optional)</label>
+                                <Select value={subject} onValueChange={setSubject} disabled={isLoading}>
+                                    <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">None</SelectItem>
+                                        {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
                 </div>

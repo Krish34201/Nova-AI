@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -15,6 +16,7 @@ const HomeworkHelperInputSchema = z.object({
   question: z.string().optional().describe('The homework question typed by the user.'),
   imageDataUri: z.string().optional().describe("An image of the homework question, as a data URI."),
   wordLimit: z.string().describe('The desired word limit for the answer (e.g., "20-30 words", "No limit").'),
+  classLevel: z.string().optional().describe('The class/grade level of the student (e.g., "Class 8").'),
   subject: z.string().optional().describe('The subject of the question (e.g., Maths, Science).'),
   style: z.string().optional().describe('The desired style for the answer (e.g., Simple, Detailed).'),
 });
@@ -46,9 +48,10 @@ Analyze the user's submission, which may be a typed question or an image of a qu
 1.  Identify the core question from the provided input.
 2.  Formulate a precise and easy-to-understand answer.
 3.  Adhere strictly to the requested word limit: {{{wordLimit}}}.
-4.  If a subject is specified ({{{subject}}}), use knowledge specific to that field.
-5.  If a style is specified ({{{style}}}), adopt that tone.
-6.  Provide a short, helpful explanation along with the answer to clarify the concept.
+4.  Tailor the answer to be appropriate for the student's class level if provided: {{#if classLevel}}{{{classLevel}}}{{/if}}.
+5.  If a subject is specified ({{{subject}}}), use knowledge specific to that field.
+6.  If a style is specified ({{{style}}}), adopt that tone.
+7.  Provide a short, helpful explanation along with the answer to clarify the concept.
 
 **User's Request:**
 {{#if question}}
