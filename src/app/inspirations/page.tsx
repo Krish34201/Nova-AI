@@ -1,3 +1,4 @@
+
 'use client';
 
 import { AppSidebar } from '@/components/app/sidebar';
@@ -61,7 +62,7 @@ export default function InspirationsPage() {
               transition={{ duration: 0.5 }}
             >
               <CardHeader className="text-center p-0 mb-6">
-                <CardTitle className="text-3xl font-bold">Emotional Content Hub</CardTitle>
+                <CardTitle className="text-3xl font-bold">Sanctuary of the Soul</CardTitle>
                 <CardDescription>A space for reflection, connection, and inspiration.</CardDescription>
               </CardHeader>
               
