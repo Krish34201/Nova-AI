@@ -8,15 +8,57 @@ export function NovaLogo() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="hsl(var(--primary))" />
-          <stop offset="50%" stopColor="hsl(var(--secondary))" />
-          <stop offset="100%" stopColor="hsl(var(--primary))" />
+        <linearGradient
+          id="logo-gradient"
+          x1="0"
+          y1="0"
+          x2="32"
+          y2="32"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="hsl(var(--primary))" />
+          <stop offset="1" stopColor="hsl(var(--secondary))" />
         </linearGradient>
       </defs>
       <path
-        d="M16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0ZM21.5 18.5C19.429 20.571 16.571 22.071 13.5 22.5C11.5 22.786 9.5 22.5 7.785 21.785L10.5 13.5C11 11.5 12 9.785 13.5 8.5C15.571 6.429 18.429 4.929 21.5 4.5C23.5 4.214 25.5 4.5 27.215 5.215L24.5 13.5C24 15.5 23 17.215 21.5 18.5Z"
-        fill="url(#logo-gradient)"
+        d="M16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32Z"
+        fill="black"
+        fillOpacity="0.2"
+      />
+      <path
+        d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z"
+        stroke="url(#logo-gradient)"
+        strokeWidth="2"
+      />
+      <path
+        d="M16 4C16 4 24 8 28 16"
+        stroke="url(#logo-gradient)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M4 16C8 8 16 4 16 4"
+        stroke="url(#logo-gradient)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M16 28C16 28 8 24 4 16"
+        stroke="url(#logo-gradient)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M28 16C24 24 16 28 16 28"
+        stroke="url(#logo-gradient)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M9.87868 9.87868C12.2218 7.53553 15.7782 7.53553 18.1213 9.87868L22.1213 13.8787C24.4645 16.2218 24.4645 19.7782 22.1213 22.1213C19.7782 24.4645 16.2218 24.4645 13.8787 22.1213L9.87868 18.1213C7.53553 15.7782 7.53553 12.2218 9.87868 9.87868Z"
+        stroke="url(#logo-gradient)"
+        strokeOpacity="0.7"
+        strokeWidth="1"
       />
     </svg>
   );
