@@ -8,7 +8,8 @@ import { Paperclip, Send, Mic, X, File as FileIcon, Loader2, Sparkles } from 'lu
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { personalizedResponse } from '@/ai/flows/personalized-response';
 import { summarizeDocument } from '@/ai/flows/summarize-document';
 import { generateInitialPrompts } from '@/ai/flows/generate-initial-prompt';
@@ -35,10 +36,12 @@ type StoredConversation = {
 
 const CONVERSATION_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-export default function Home() {
+function ChatPageContent() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { username } = useUsername();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [initialPrompts, setInitialPrompts] = useState<string[]>([]);
@@ -65,9 +68,9 @@ export default function Home() {
     }
   }, [messages.length]);
 
-  // Load messages from localStorage on initial render
+  // Load messages from localStorage on initial render if 'continue=true'
   useEffect(() => {
-    if (username) {
+    if (username && searchParams.get('continue') === 'true') {
       try {
         const storedConversationRaw = localStorage.getItem(`chatHistory_${username}`);
         if (storedConversationRaw) {
@@ -80,11 +83,13 @@ export default function Home() {
             localStorage.removeItem(`chatHistory_${username}`);
           }
         }
+        // Remove the query param after loading
+        router.replace('/', { scroll: false });
       } catch (error) {
         console.error("Could not load chat history:", error);
       }
     }
-  }, [username]);
+  }, [username, searchParams, router]);
 
 
   // Save messages to localStorage whenever they change
@@ -406,3 +411,13 @@ export default function Home() {
     </div>
   )
 }
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ChatPageContent />
+    </Suspense>
+  );
+}
+
+    

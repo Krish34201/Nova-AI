@@ -5,12 +5,14 @@ import { AppSidebar } from '@/components/app/sidebar';
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { History, Sparkles } from 'lucide-react';
+import { History, Sparkles, MessageSquarePlus } from 'lucide-react';
 import { useUsername } from '@/components/username-provider';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { File as FileIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 type Message = {
   text: string;
@@ -104,10 +106,20 @@ export default function RecentsPage() {
             {conversation && (
                  <Card className="bg-card/80 backdrop-blur-sm border-border shadow-2xl">
                     <CardHeader>
-                        <CardTitle>Conversation History</CardTitle>
-                        <CardDescription>
-                            This chat was saved {formatDistanceToNow(new Date(conversation.timestamp), { addSuffix: true })}.
-                        </CardDescription>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <CardTitle>Conversation History</CardTitle>
+                                <CardDescription>
+                                    This chat was saved {formatDistanceToNow(new Date(conversation.timestamp), { addSuffix: true })}.
+                                </CardDescription>
+                            </div>
+                             <Button asChild>
+                                <Link href="/?continue=true">
+                                    <MessageSquarePlus className="mr-2 h-4 w-4" />
+                                    Continue Chat
+                                </Link>
+                            </Button>
+                        </div>
                     </CardHeader>
                     <CardContent className="space-y-8">
                        {conversation.messages.map((message, index) => (
@@ -159,3 +171,5 @@ export default function RecentsPage() {
     </div>
   );
 }
+
+    
