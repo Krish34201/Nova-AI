@@ -11,9 +11,8 @@ const AnimatedBackground = React.memo(() => {
         muted
         playsInline
         className="absolute top-1/2 left-1/2 w-full h-full min-w-full min-h-full object-cover transform -translate-x-1/2 -translate-y-1/2"
-        src="https://cdn.pixabay.com/video/2017/11/02/12716-241674181_large.mp4"
+        src="https://cdn.pixabay.com/video/2022/09/20/130103-752981447_large.mp4"
       />
-      <div className="absolute inset-0 w-full h-full bg-black/60" />
     </div>
   );
 });
