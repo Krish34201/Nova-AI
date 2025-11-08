@@ -161,9 +161,9 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-transparent">
+    <div className="flex h-screen w-full">
       <AppSidebar />
-      <SidebarInset className="flex flex-col bg-transparent">
+      <SidebarInset className="flex flex-col">
         <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
