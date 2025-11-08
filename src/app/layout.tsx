@@ -24,6 +24,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js" />
+        <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js" />
       </head>
       <body className="font-body antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark">
@@ -35,8 +37,6 @@ export default function RootLayout({
             </UsernameProvider>
             <Toaster />
         </ThemeProvider>
-        <Script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js" />
-        <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js" />
       </body>
     </html>
   );
