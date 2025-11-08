@@ -43,12 +43,12 @@ export default function AgentsPage() {
           </div>
         </header>
 
-        <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
+        <main className="flex-1 flex flex-col p-6 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="w-full max-w-3xl"
+            className="w-full max-w-3xl mx-auto"
           >
             <Card className="shadow-2xl bg-card/80 backdrop-blur-sm border-border">
               <CardHeader>
