@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import {z} from 'genkit';
 
 const StudyAiSummarizerInputSchema = z.object({
@@ -36,6 +37,7 @@ const prompt = ai.definePrompt({
   name: 'studyAiSummarizerPrompt',
   input: {schema: StudyAiSummarizerInputSchema},
   output: {schema: StudyAiSummarizerOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are an expert academic tutor AI. Your task is to read the provided chapter text and convert it into a structured, easy-to-digest study guide for a student preparing for an exam.
 
 Your response must be organized into four distinct sections:

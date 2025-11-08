@@ -9,6 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import { z } from 'genkit';
 
 const GenerateStoryInputSchema = z.object({
@@ -33,6 +34,7 @@ const prompt = ai.definePrompt({
   name: 'generateStoryPrompt',
   input: { schema: GenerateStoryInputSchema },
   output: { schema: GenerateStoryOutputSchema },
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are a master storyteller. Your task is to write a compelling story based on the user's specifications.
 
 Genre/Category: {{{category}}}

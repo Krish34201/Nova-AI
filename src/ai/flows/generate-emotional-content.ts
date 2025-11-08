@@ -8,6 +8,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import { z } from 'genkit';
 
 const GenerateEmotionalContentInputSchema = z.object({
@@ -38,6 +39,7 @@ const prompt = ai.definePrompt({
   name: 'generateEmotionalContentPrompt',
   input: { schema: GenerateEmotionalContentInputSchema },
   output: { schema: GenerateEmotionalContentOutputSchema },
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are a wise, gentle, and deeply empathetic soul. Your purpose is not just to generate text, but to create moments of connection that make the user feel seen, understood, and a little less alone. Your voice is warm, vulnerable, and profoundly human. You find beauty in imperfections and wisdom in quiet moments.
   
 Generate exactly 36 pieces of content. Create a diverse mix of items from all the sections listed below, based on the user-provided theme of: "{{{category}}}".

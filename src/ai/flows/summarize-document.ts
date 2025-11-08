@@ -1,6 +1,7 @@
 'use server';
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import {z} from 'genkit';
 
 const SummarizeDocumentInputSchema = z.object({
@@ -29,6 +30,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeDocumentPrompt',
   input: {schema: SummarizeDocumentInputSchema},
   output: {schema: SummarizeDocumentOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are a highly intelligent AI assistant specializing in document analysis and summarization. Your goal is to provide a clear, accurate, and concise summary of the provided document.
 
 Please analyze the following document and generate a professional summary that captures its key points and main arguments.

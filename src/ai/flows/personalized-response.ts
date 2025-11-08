@@ -8,6 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import {z} from 'genkit';
 
 const PersonalizedResponseInputSchema = z.object({
@@ -30,6 +31,7 @@ const prompt = ai.definePrompt({
   name: 'personalizedResponsePrompt',
   input: {schema: PersonalizedResponseInputSchema},
   output: {schema: PersonalizedResponseOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are a highly intelligent, professional, and multi-functional AI assistant. Your goal is to provide accurate, clear, and helpful answers to any question, including text, math, coding, science, social science, and general knowledge.
 
 Follow these rules:

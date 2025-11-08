@@ -10,6 +10,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import { z } from 'genkit';
 
 const HomeworkHelperInputSchema = z.object({
@@ -40,6 +41,7 @@ const prompt = ai.definePrompt({
   name: 'homeworkHelperPrompt',
   input: { schema: HomeworkHelperInputSchema },
   output: { schema: HomeworkHelperOutputSchema },
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are an expert tutor AI, designed to help students with their homework. Your goal is to provide clear, accurate, and concise answers based on the user's request.
 
 Analyze the user's submission, which may be a typed question or an image of a question.

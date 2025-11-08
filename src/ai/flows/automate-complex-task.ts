@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import {z} from 'genkit';
 
 const AutomateComplexTaskInputSchema = z.object({
@@ -36,6 +37,7 @@ const prompt = ai.definePrompt({
   name: 'automateComplexTaskPrompt',
   input: {schema: AutomateComplexTaskInputSchema},
   output: {schema: AutomateComplexTaskOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are a highly intelligent AI agent specializing in project management and task decomposition. Your goal is to break down a complex user-described task into a clear, logical, and actionable series of steps.
 
 Provide a step-by-step plan to accomplish the task. Additionally, provide a brief, professional explanation for the reasoning behind your proposed steps, highlighting the efficiency or logic of the sequence.
