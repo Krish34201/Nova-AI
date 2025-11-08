@@ -29,7 +29,7 @@ const AnimatedBackground = () => {
               scale: 1.0,
               scaleMobile: 1.0,
               points: 12.0,
-              maxDistance: 25.0,
+              maxDistance: 0, // Set to 0 to remove lines
               spacing: 15.0,
               color: 0x00eaff, // Neon Cyan
               backgroundColor: 0x0, // Black background for Vanta
