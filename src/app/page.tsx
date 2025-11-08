@@ -1,21 +1,22 @@
 'use client';
 
-import { AppSidebar } from '@/components/app/sidebar'
-import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Paperclip, Send, Mic, X, File as FileIcon } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { PlaceHolderImages } from '@/lib/placeholder-images'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { AppSidebar } from '@/components/app/sidebar';
+import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Paperclip, Send, Mic, X, File as FileIcon, Loader2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useState, useRef, useEffect } from 'react';
 import { personalizedResponse } from '@/ai/flows/personalized-response';
 import { summarizeDocument } from '@/ai/flows/summarize-document';
+import { generateInitialPrompts } from '@/ai/flows/generate-initial-prompt';
 import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Message = {
   text: string;
@@ -34,17 +35,27 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { username } = useUsername();
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      text: 'Hello! I am Nova, your advanced AI assistant. How can I help you today? You can also upload a document for me to summarize.',
-      isUser: false,
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [initialPrompts, setInitialPrompts] = useState<string[]>([]);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
 
+  useEffect(() => {
+    async function fetchInitialPrompts() {
+      try {
+        const result = await generateInitialPrompts({});
+        setInitialPrompts(result.suggestedPrompts);
+      } catch (error) {
+        console.error('Error generating initial prompts:', error);
+      } finally {
+        setIsLoadingPrompts(false);
+      }
+    }
+    fetchInitialPrompts();
+  }, []);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -75,13 +86,18 @@ export default function Home() {
         fileInputRef.current.value = '';
     }
   }
+  
+  const handlePromptClick = (prompt: string) => {
+    setInput(prompt);
+  };
 
-  const handleSend = async () => {
-    if (input.trim() === '' && !attachedFile) return;
+  const handleSend = async (textToSend?: string) => {
+    const currentInput = textToSend || input;
+    if (currentInput.trim() === '' && !attachedFile) return;
 
     setIsSending(true);
 
-    const userMessage: Message = { text: input, isUser: true };
+    const userMessage: Message = { text: currentInput, isUser: true };
     if (attachedFile) {
         userMessage.file = { name: attachedFile.name, type: attachedFile.type };
         if (filePreview) {
@@ -90,7 +106,6 @@ export default function Home() {
     }
 
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = input;
     setInput('');
     
     const currentFile = attachedFile;
@@ -98,7 +113,6 @@ export default function Home() {
 
     try {
       if (currentFile) {
-         // If there is a file, we assume it's for summarization for now.
          const reader = new FileReader();
          reader.readAsDataURL(currentFile);
          reader.onload = async () => {
@@ -130,9 +144,8 @@ export default function Home() {
              setMessages(prev => [...prev, errorMessage]);
              setIsSending(false);
          };
-         return; // The response will be handled in the onload callback
+         return;
       } else {
-        // Default chat response
         const aiResponse = await personalizedResponse({ query: currentInput, userName: username || undefined });
         const aiMessage: Message = {
             text: aiResponse.response,
@@ -159,6 +172,50 @@ export default function Home() {
       handleSend();
     }
   };
+  
+  const WelcomeCard = () => (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="flex flex-col items-center justify-center w-full"
+    >
+      <Card className="w-full max-w-4xl bg-card/70 backdrop-blur-sm p-8 text-center">
+        <h1 className="text-3xl font-bold text-primary-foreground mb-2">Welcome to Nova AI</h1>
+        <p className="text-muted-foreground mb-6">Your advanced, all-in-one AI assistant. How can I help you today?</p>
+        
+        <div className="text-left mt-4">
+          <h2 className="text-lg font-semibold mb-4 text-primary-foreground">Suggested Prompts</h2>
+          {isLoadingPrompts ? (
+            <div className="grid md:grid-cols-2 gap-4">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-24 bg-card/50 rounded-lg p-4 animate-pulse"></div>
+                ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-4">
+              {initialPrompts.map((prompt, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 + 0.5 }}
+                >
+                  <Card 
+                    className="p-4 bg-card/50 hover:bg-card/80 cursor-pointer transition-all duration-300"
+                    onClick={() => handlePromptClick(prompt)}
+                  >
+                    <p className="text-sm text-foreground">{prompt}</p>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card>
+    </motion.div>
+  );
+
 
   return (
     <div className="flex h-screen w-full">
@@ -169,13 +226,11 @@ export default function Home() {
           <div className="flex items-center gap-4 ml-4">
              <h1 className="text-xl font-semibold">Nova AI v1.0</h1>
           </div>
-          <div className="ml-auto flex items-center gap-4">
-          </div>
         </header>
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-6 space-y-8">
-            {messages.map((message, index) => (
+            {messages.length === 0 ? <WelcomeCard /> : messages.map((message, index) => (
               <div key={index} className={cn('flex items-start gap-4', message.isUser ? 'justify-end' : '')}>
                 {!message.isUser && (
                   <Avatar className="h-9 w-9 border">
@@ -221,7 +276,7 @@ export default function Home() {
                 )}
               </div>
             ))}
-             {isSending && messages[messages.length-1]?.isUser && (
+             {isSending && (
                 <div className={cn('flex items-start gap-4')}>
                     <Avatar className="h-9 w-9 border">
                         {aiAvatar && <AvatarImage src={aiAvatar.imageUrl} alt="AI Avatar" />}
@@ -281,7 +336,7 @@ export default function Home() {
                 <Button variant="ghost" size="icon" className="rounded-full" disabled={isSending}>
                   <Mic className="h-5 w-5" />
                 </Button>
-                <Button size="icon" className="rounded-full" onClick={handleSend} disabled={isSending}>
+                <Button size="icon" className="rounded-full" onClick={() => handleSend()} disabled={isSending}>
                   <Send className="h-5 w-5" />
                 </Button>
               </div>
@@ -295,5 +350,3 @@ export default function Home() {
     </div>
   )
 }
-
-    
