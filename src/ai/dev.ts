@@ -1,3 +1,5 @@
+'use server';
+
 import { config } from 'dotenv';
 config();
 
@@ -8,3 +10,4 @@ import '@/ai/flows/automate-complex-task.ts';
 import '@/ai/flows/generate-emotional-content.ts';
 import '@/ai/flows/study-ai-summarizer.ts';
 import '@/ai/flows/generate-story.ts';
+import '@/ai/flows/homework-helper.ts';

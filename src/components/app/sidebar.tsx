@@ -6,7 +6,8 @@ import {
   HeartHandshake,
   History,
   GraduationCap,
-  BookText
+  BookText,
+  BookMarked,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -67,6 +68,14 @@ export function AppSidebar() {
               <Link href="/study" onClick={handleLinkClick}>
                 <GraduationCap />
                 <span>Study AI</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/homework'} tooltip="Homework Helper">
+              <Link href="/homework" onClick={handleLinkClick}>
+                <BookMarked />
+                <span>Homework</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
