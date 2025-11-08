@@ -308,48 +308,49 @@ export default function Home() {
                 </motion.div>
             )}
           </div>
-
-          <div className="border-t border-border bg-background/50 backdrop-blur-lg px-6 py-4">
-            {attachedFile && (
-              <div className="relative mb-2 w-fit">
-                {filePreview ? (
-                    <Image src={filePreview} alt="Preview" width={80} height={80} className="rounded-md"/>
-                ) : (
-                    <div className="flex items-center gap-2 p-2 rounded-md bg-input">
-                        <FileIcon className="h-6 w-6"/>
-                        <span className="text-sm">{attachedFile.name}</span>
-                    </div>
+          <div className="px-4 pb-4">
+              <div className="border-t border-border bg-background/50 backdrop-blur-lg p-2 rounded-2xl">
+                {attachedFile && (
+                  <div className="relative mb-2 w-fit px-2">
+                    {filePreview ? (
+                        <Image src={filePreview} alt="Preview" width={80} height={80} className="rounded-md"/>
+                    ) : (
+                        <div className="flex items-center gap-2 p-2 rounded-md bg-input">
+                            <FileIcon className="h-6 w-6"/>
+                            <span className="text-sm">{attachedFile.name}</span>
+                        </div>
+                    )}
+                     <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-muted text-muted-foreground" onClick={removeAttachment}>
+                        <X className="h-4 w-4"/>
+                    </Button>
+                  </div>
                 )}
-                 <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6 rounded-full bg-muted text-muted-foreground" onClick={removeAttachment}>
-                    <X className="h-4 w-4"/>
-                </Button>
+                <div className="relative">
+                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                  <Textarea
+                    placeholder={"Type your message, or drop a file..."}
+                    className="w-full resize-none bg-input pr-28 pl-12 min-h-[52px] rounded-xl border-transparent focus:border-primary/50 focus:ring-primary/50 transition-colors"
+                    rows={1}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={isSending}
+                  />
+                  <div className="absolute top-1/2 left-4 transform -translate-y-1/2 flex items-center">
+                     <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
+                        <Paperclip className="h-5 w-5" />
+                     </Button>
+                  </div>
+                  <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
+                    <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" disabled={isSending}>
+                      <Mic className="h-5 w-5" />
+                    </Button>
+                    <Button size="icon" className="rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity" onClick={() => handleSend()} disabled={isSending || (!input.trim() && !attachedFile)}>
+                      <Send className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-            )}
-            <div className="relative">
-             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-              <Textarea
-                placeholder={"Type your message, or drop a file..."}
-                className="w-full resize-none bg-input pr-28 pl-12 min-h-[52px] rounded-2xl border-transparent focus:border-primary/50 focus:ring-primary/50 transition-colors"
-                rows={1}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={isSending}
-              />
-              <div className="absolute top-1/2 left-4 transform -translate-y-1/2 flex items-center">
-                 <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
-                    <Paperclip className="h-5 w-5" />
-                 </Button>
-              </div>
-              <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
-                <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" disabled={isSending}>
-                  <Mic className="h-5 w-5" />
-                </Button>
-                <Button size="icon" className="rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity" onClick={() => handleSend()} disabled={isSending || (!input.trim() && !attachedFile)}>
-                  <Send className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       </SidebarInset>
