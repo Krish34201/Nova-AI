@@ -70,11 +70,17 @@ export default function InspirationsPage() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-7xl mx-auto">
+          <motion.div
+            className="max-w-7xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
               <Button
                 variant={selectedCategory === 'All' ? 'default' : 'outline'}
                 onClick={() => handleCategorySelect('All')}
+                className="transition-all"
               >
                 All
               </Button>
@@ -83,6 +89,7 @@ export default function InspirationsPage() {
                   key={cat}
                   variant={selectedCategory === cat ? 'default' : 'outline'}
                   onClick={() => handleCategorySelect(cat)}
+                  className="transition-all"
                 >
                   {cat}
                 </Button>
@@ -100,15 +107,16 @@ export default function InspirationsPage() {
               </Button>
             </div>
 
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {isGenerating && (
                 <motion.div
+                  key="loader"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className="flex justify-center"
                 >
-                  <Card className="w-full max-w-2xl shadow-2xl bg-card/80 backdrop-blur-sm">
+                  <Card className="w-full max-w-2xl shadow-2xl bg-card/80 backdrop-blur-sm border-border">
                     <CardContent className="pt-6 text-center h-48 flex flex-col items-center justify-center">
                         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
                         <p className="text-muted-foreground">Generating your inspiration...</p>
@@ -116,13 +124,14 @@ export default function InspirationsPage() {
                   </Card>
                 </motion.div>
               )}
-            </AnimatePresence>
             
             {aiQuotes && (
               <motion.div
+                key="ai-quotes"
                 className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                transition={{ staggerChildren: 0.05 }}
               >
                 <div className="md:col-span-2 lg:col-span-3 text-center mb-4">
                     <h2 className="text-2xl font-bold">AI Generated Quotes</h2>
@@ -131,11 +140,15 @@ export default function InspirationsPage() {
                 {aiQuotes.map((quote, index) => (
                   <motion.div
                     key={`${quote.quote}-${index}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 },
+                    }}
+                    initial="hidden"
+                    animate="visible"
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="h-full flex flex-col justify-between transform hover:-translate-y-1 transition-transform duration-300">
+                    <Card className="h-full flex flex-col justify-between transform hover:-translate-y-2 transition-transform duration-300 bg-card/80 border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20">
                       <CardContent className="pt-6">
                         <p className="text-lg font-medium">"{quote.quote}"</p>
                       </CardContent>
@@ -150,6 +163,7 @@ export default function InspirationsPage() {
 
             {showStaticContent && (
               <motion.div
+                key="static-quotes"
                 className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -159,9 +173,9 @@ export default function InspirationsPage() {
                     key={`${quote.quote}-${index}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: (index % QUOTES_PER_PAGE) * 0.1 }}
+                    transition={{ delay: (index % QUOTES_PER_PAGE) * 0.05 }}
                   >
-                    <Card className="h-full flex flex-col justify-between transform hover:-translate-y-1 transition-transform duration-300">
+                    <Card className="h-full flex flex-col justify-between transform hover:-translate-y-2 transition-transform duration-300 bg-card/80 border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20">
                       <CardContent className="pt-6">
                         <p className="text-lg font-medium">"{quote.quote}"</p>
                       </CardContent>
@@ -173,13 +187,13 @@ export default function InspirationsPage() {
                 ))}
               </motion.div>
             )}
+            </AnimatePresence>
 
             {showStaticContent && canLoadMore && (
               <div className="flex justify-center mt-8">
-                <Button onClick={handleLoadMore}>Load More</Button>
-              </div>
+                <Button onClick={handleLoadMore}>Load More</Button>              </div>
             )}
-          </div>
+          </motion.div>
         </main>
       </SidebarInset>
     </div>

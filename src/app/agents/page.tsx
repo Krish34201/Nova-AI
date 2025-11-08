@@ -44,8 +44,12 @@ export default function AgentsPage() {
         </header>
 
         <main className="flex-1 flex flex-col items-center justify-center p-6 overflow-hidden">
-          <div >
-            <Card className="max-w-3xl w-full shadow-2xl bg-card/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="max-w-3xl w-full shadow-2xl bg-card/80 backdrop-blur-sm border-border">
               <CardHeader>
                 <CardTitle>Automate a Complex Task</CardTitle>
                 <CardDescription>
@@ -56,7 +60,7 @@ export default function AgentsPage() {
                 <div className="grid gap-4">
                   <Textarea
                     placeholder="e.g., Plan a 3-day trip to Paris for a family of four..."
-                    className="w-full resize-none min-h-[100px]"
+                    className="w-full resize-none min-h-[100px] bg-input"
                     value={taskDescription}
                     onChange={(e) => setTaskDescription(e.target.value)}
                     disabled={isLoading}
@@ -99,7 +103,7 @@ export default function AgentsPage() {
                 )}
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         </main>
       </SidebarInset>
     </div>

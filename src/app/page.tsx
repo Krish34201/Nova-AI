@@ -16,7 +16,7 @@ import { generateInitialPrompts } from '@/ai/flows/generate-initial-prompt';
 import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Message = {
   text: string;
@@ -191,7 +191,7 @@ export default function Home() {
         {isLoadingPrompts ? (
           <div className="grid md:grid-cols-2 gap-4">
               {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-24 bg-white/5 rounded-lg p-4 animate-pulse"></div>
+                  <div key={i} className="h-24 bg-card rounded-lg p-4 animate-pulse"></div>
               ))}
           </div>
         ) : (
@@ -202,9 +202,10 @@ export default function Home() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 + 0.5 }}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
               >
                 <Card 
-                  className="p-4 bg-white/5 backdrop-blur-lg border border-white/10 hover:border-primary/50 hover:bg-white/10 cursor-pointer transition-all duration-300 group"
+                  className="p-4 bg-card/80 backdrop-blur-lg border border-border hover:border-primary/50 hover:bg-card/90 cursor-pointer transition-all duration-300 group"
                   onClick={() => handlePromptClick(prompt)}
                 >
                   <p className="text-sm text-foreground group-hover:text-primary transition-colors">{prompt}</p>
@@ -231,81 +232,86 @@ export default function Home() {
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-6 space-y-8">
-            {messages.length === 0 ? <WelcomeCard /> : messages.map((message, index) => (
-              <div key={index} className={cn('flex items-start gap-4', message.isUser ? 'justify-end' : '')}>
-                {!message.isUser && (
-                  <Avatar className="h-9 w-9 border border-white/10">
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
-                        <Sparkles className="w-5 h-5 text-black/80" />
-                    </div>
-                  </Avatar>
-                )}
+            <AnimatePresence initial={false}>
+              {messages.length === 0 ? <WelcomeCard /> : messages.map((message, index) => (
                 <motion.div 
+                  key={index} 
+                  className={cn('flex items-start gap-4', message.isUser ? 'justify-end' : '')}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className={cn(
-                  'flex-1 space-y-2 max-w-2xl',
-                  message.isUser ? 'text-right' : ''
-                )}>
-                  <Card className={cn(
-                    'p-4 rounded-xl inline-block shadow-lg border',
-                     message.isUser 
-                      ? 'bg-gradient-to-br from-primary to-secondary text-primary-foreground border-none' 
-                      : 'bg-white/5 backdrop-blur-lg border-white/10'
-                  )}>
-                    {message.image && (
-                      <Image src={message.image} alt="Uploaded image" width={300} height={300} className="rounded-md mb-2 max-w-full h-auto"/>
-                    )}
-                    {message.file && !message.image && (
-                      <div className="flex items-center gap-2 mb-2 p-2 rounded-md bg-black/20">
-                        <FileIcon className="h-5 w-5"/>
-                        <span className="text-sm">{message.file.name}</span>
+                >
+                  {!message.isUser && (
+                    <Avatar className="h-9 w-9 border border-white/10">
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
+                          <Sparkles className="w-5 h-5 text-black/80" />
                       </div>
-                    )}
-                    {message.text && <p className="text-sm whitespace-pre-wrap">{message.text}</p>}
-                    {message.badges && message.badges.length > 0 && (
-                       <div className="mt-4">
-                        {message.badges.map((badge, i) => (
-                           <Badge key={i} variant="secondary" className="ml-2">{badge}</Badge>
-                        ))}
-                       </div>
-                    )}
-                  </Card>
+                    </Avatar>
+                  )}
+                  <div className={cn(
+                    'flex-1 space-y-2 max-w-2xl',
+                    message.isUser ? 'text-right' : ''
+                  )}>
+                    <Card className={cn(
+                      'p-4 rounded-xl inline-block shadow-lg border',
+                       message.isUser 
+                        ? 'bg-gradient-to-br from-primary to-secondary text-primary-foreground border-none' 
+                        : 'bg-card/80 backdrop-blur-lg border-border'
+                    )}>
+                      {message.image && (
+                        <Image src={message.image} alt="Uploaded image" width={300} height={300} className="rounded-md mb-2 max-w-full h-auto"/>
+                      )}
+                      {message.file && !message.image && (
+                        <div className="flex items-center gap-2 mb-2 p-2 rounded-md bg-black/20">
+                          <FileIcon className="h-5 w-5"/>
+                          <span className="text-sm">{message.file.name}</span>
+                        </div>
+                      )}
+                      {message.text && <p className="text-sm whitespace-pre-wrap">{message.text}</p>}
+                      {message.badges && message.badges.length > 0 && (
+                         <div className="mt-4">
+                          {message.badges.map((badge, i) => (
+                             <Badge key={i} variant="secondary" className="ml-2">{badge}</Badge>
+                          ))}
+                         </div>
+                      )}
+                    </Card>
+                  </div>
+                  {message.isUser && (
+                    <Avatar className="h-9 w-9 border-white/10">
+                      <AvatarFallback className="bg-white/10">{username ? username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+                    </Avatar>
+                  )}
                 </motion.div>
-                {message.isUser && (
-                  <Avatar className="h-9 w-9 border-white/10">
-                    <AvatarFallback className="bg-white/10">{username ? username.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
-            ))}
+              ))}
+            </AnimatePresence>
              {isSending && (
-                <div className={cn('flex items-start gap-4')}>
+                <motion.div 
+                    className={cn('flex items-start gap-4')}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                >
                     <Avatar className="h-9 w-9 border border-white/10">
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
                             <Sparkles className="w-5 h-5 text-black/80" />
                         </div>
                     </Avatar>
-                    <motion.div 
-                      className="flex-1 space-y-2 max-w-2xl"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                        <Card className="p-4 rounded-xl inline-block shadow-lg bg-white/5 backdrop-blur-lg border-white/10">
+                    <div className="flex-1 space-y-2 max-w-2xl">
+                        <Card className="p-4 rounded-xl inline-block shadow-lg bg-card/80 backdrop-blur-lg border-border">
                              <div className="flex items-center justify-center gap-2">
                                 <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]" />
                                 <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]" />
                                 <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse" />
                             </div>
                         </Card>
-                    </motion.div>
-                </div>
+                    </div>
+                </motion.div>
             )}
           </div>
 
-          <div className="border-t border-white/10 bg-background/50 backdrop-blur-lg px-6 py-4">
+          <div className="border-t border-border bg-background/50 backdrop-blur-lg px-6 py-4">
             {attachedFile && (
               <div className="relative mb-2 w-fit">
                 {filePreview ? (
@@ -341,7 +347,7 @@ export default function Home() {
                 <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" disabled={isSending}>
                   <Mic className="h-5 w-5" />
                 </Button>
-                <Button size="icon" className="rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity" onClick={() => handleSend()} disabled={isSending}>
+                <Button size="icon" className="rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity" onClick={() => handleSend()} disabled={isSending || (!input.trim() && !attachedFile)}>
                   <Send className="h-5 w-5" />
                 </Button>
               </div>
