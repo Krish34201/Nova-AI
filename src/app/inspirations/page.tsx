@@ -4,58 +4,44 @@ import { AppSidebar } from '@/components/app/sidebar';
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { quotes, Quote } from '@/lib/quotes';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lightbulb, Shuffle, Loader2 } from 'lucide-react';
-import { generateQuote } from '@/ai/flows/generate-quote';
+import { HeartHandshake, Wand2, Loader2 } from 'lucide-react';
+import { generateEmotionalContent, type GenerateEmotionalContentOutput } from '@/ai/flows/generate-emotional-content';
 
+type Category = 'Nostalgia & Memories' | 'Love & Heartache' | 'Hope & Healing' | 'Bittersweet Moments' | 'Personal Growth' | 'Inner Strength & Resilience' | 'Encouragement' | 'Self-Discovery';
+const categories: Category[] = ['Nostalgia & Memories', 'Love & Heartache', 'Hope & Healing', 'Bittersweet Moments', 'Personal Growth', 'Inner Strength & Resilience', 'Encouragement', 'Self-Discovery'];
 
-type Category = 'Motivational' | 'Emotional' | 'Love' | 'Friendship' | 'Life' | 'Humor' | 'Inspirational' | 'Success';
-const categories: Category[] = ['Motivational', 'Emotional', 'Love', 'Friendship', 'Life', 'Humor', 'Inspirational', 'Success'];
-
-const QUOTES_PER_PAGE = 6;
+const iconMap: { [key: string]: React.ReactNode } = {
+  "Poetry": "📜",
+  "Short Novel Excerpts / Micro-Stories": "📖",
+  "Micro-Meditations / Mindful Moments": "🧘",
+  "Letters / Notes": "💌",
+  "Emotional Prompts / Journaling Ideas": "✍️",
+  "Relatable Life Anecdotes": "💬",
+  "Original Lyric-Style Lines": "🎶",
+  "Life Advice from a Soul / Tiny Wisdom Nuggets": "✨",
+};
 
 export default function InspirationsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
-  const [visibleQuotes, setVisibleQuotes] = useState(QUOTES_PER_PAGE);
-  const [aiQuotes, setAiQuotes] = useState<Quote[] | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category>(categories[0]);
+  const [generatedContent, setGeneratedContent] = useState<GenerateEmotionalContentOutput | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const filteredQuotes = useMemo(() => {
-    if (selectedCategory === 'All') {
-      return quotes;
-    }
-    return quotes.filter((q) => q.category === selectedCategory);
-  }, [selectedCategory]);
-
-  const handleLoadMore = () => {
-    setVisibleQuotes((prev) => prev + QUOTES_PER_PAGE);
-  };
-
-  const handleGenerateAiQuotes = async () => {
+  const handleGenerateContent = async () => {
     setIsGenerating(true);
-    setAiQuotes(null);
+    setGeneratedContent(null);
     try {
-      const result = await generateQuote({ category: selectedCategory });
-      setAiQuotes(result.quotes as Quote[]);
+      const result = await generateEmotionalContent({ category: selectedCategory });
+      setGeneratedContent(result);
     } catch (error) {
-      console.error("Error generating quotes:", error);
-      // Optionally, show an error toast to the user
+      console.error("Error generating content:", error);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleCategorySelect = (category: Category | 'All') => {
-    setSelectedCategory(category);
-    setVisibleQuotes(QUOTES_PER_PAGE);
-    setAiQuotes(null);
-  };
-
-  const quotesToShow = filteredQuotes.slice(0, visibleQuotes);
-  const canLoadMore = visibleQuotes < filteredQuotes.length;
-  const showStaticContent = !aiQuotes && !isGenerating;
+  const contentAsArray = generatedContent ? Object.values(generatedContent) : [];
 
   return (
     <div className="flex h-screen w-full bg-transparent">
@@ -64,8 +50,8 @@ export default function InspirationsPage() {
         <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
-            <Lightbulb className="h-6 w-6" />
-            <h1 className="text-xl font-semibold">Quotes</h1>
+            <HeartHandshake className="h-6 w-6" />
+            <h1 className="text-xl font-semibold">Reflections</h1>
           </div>
         </header>
 
@@ -76,20 +62,18 @@ export default function InspirationsPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
+              <CardHeader className="text-center p-0 mb-6">
+                <CardTitle className="text-3xl font-bold">Emotional Content Hub</CardTitle>
+                <CardDescription>A space for reflection, connection, and inspiration.</CardDescription>
+              </CardHeader>
+              
               <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
-                <Button
-                  variant={selectedCategory === 'All' ? 'default' : 'outline'}
-                  onClick={() => handleCategorySelect('All')}
-                  className="transition-all"
-                >
-                  All
-                </Button>
                 {categories.map((cat) => (
                   <Button
                     key={cat}
                     variant={selectedCategory === cat ? 'default' : 'outline'}
-                    onClick={() => handleCategorySelect(cat)}
-                    className="transition-all"
+                    onClick={() => setSelectedCategory(cat)}
+                    className="transition-all rounded-full"
                   >
                     {cat}
                   </Button>
@@ -97,13 +81,13 @@ export default function InspirationsPage() {
               </div>
 
               <div className="flex justify-center mb-8">
-                <Button onClick={handleGenerateAiQuotes} disabled={isGenerating} size="lg">
+                <Button onClick={handleGenerateContent} disabled={isGenerating} size="lg" className="rounded-full">
                   {isGenerating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <Shuffle className="mr-2 h-4 w-4" />
+                    <Wand2 className="mr-2 h-4 w-4" />
                   )}
-                  {isGenerating ? 'Generating...' : 'Generate AI Quotes'}
+                  {isGenerating ? 'Generating...' : `Generate for "${selectedCategory}"`}
                 </Button>
               </div>
 
@@ -118,79 +102,60 @@ export default function InspirationsPage() {
                   >
                       <CardContent className="pt-6 text-center h-48 flex flex-col items-center justify-center">
                           <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                          <p className="text-muted-foreground">Generating your inspiration...</p>
+                          <p className="text-muted-foreground">Crafting some beautiful thoughts for you...</p>
                       </CardContent>
                   </motion.div>
                 )}
               
-              {aiQuotes && (
+              {generatedContent && (
                 <motion.div
-                  key="ai-quotes"
+                  key="ai-content"
                   className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ staggerChildren: 0.05 }}
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    visible: {
+                      transition: { staggerChildren: 0.07, delayChildren: 0.1 }
+                    }
+                  }}
                 >
-                  <div className="md:col-span-2 lg:col-span-3 text-center mb-4">
-                      <h2 className="text-2xl font-bold">AI Generated Quotes</h2>
-                      <p className="text-muted-foreground">Category: {selectedCategory}</p>
-                  </div>
-                  {aiQuotes.map((quote, index) => (
+                  {contentAsArray.map((item, index) => (
                     <motion.div
-                      key={`${quote.quote}-${index}`}
-                      variants={{
-                          hidden: { opacity: 0, y: 20 },
-                          visible: { opacity: 1, y: 0 },
+                      key={index}
+                       variants={{
+                          hidden: { y: 20, opacity: 0 },
+                          visible: { y: 0, opacity: 1 }
                       }}
-                      initial="hidden"
-                      animate="visible"
-                      transition={{ delay: index * 0.05 }}
                     >
                       <Card className="h-full flex flex-col justify-between transform hover:-translate-y-2 transition-transform duration-300 bg-card/95 border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20">
-                        <CardContent className="pt-6">
-                          <p className="text-lg font-medium">"{quote.quote}"</p>
-                        </CardContent>
-                        <CardHeader className="pt-0">
-                          <CardDescription>- {quote.author}</CardDescription>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-3 text-lg">
+                            <span className="text-2xl">{iconMap[item.title]}</span>
+                            <span>{item.title}</span>
+                          </CardTitle>
+                          <CardDescription>{item.category}</CardDescription>
                         </CardHeader>
+                        <CardContent>
+                          <p className="text-lg font-medium italic">"{item.content}"</p>
+                        </CardContent>
                       </Card>
                     </motion.div>
                   ))}
                 </motion.div>
               )}
 
-              {showStaticContent && (
-                <motion.div
-                  key="static-quotes"
-                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              {!isGenerating && !generatedContent && (
+                <motion.div 
+                  className="text-center text-muted-foreground py-12"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  {quotesToShow.map((quote, index) => (
-                    <motion.div
-                      key={`${quote.quote}-${index}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: (index % QUOTES_PER_PAGE) * 0.05 }}
-                    >
-                      <Card className="h-full flex flex-col justify-between transform hover:-translate-y-2 transition-transform duration-300 bg-card/95 border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20">
-                        <CardContent className="pt-6">
-                          <p className="text-lg font-medium">"{quote.quote}"</p>
-                        </CardContent>
-                        <CardHeader className="pt-0">
-                          <CardDescription>- {quote.author}</CardDescription>
-                        </CardHeader>
-                      </Card>
-                    </motion.div>
-                  ))}
+                  <p>Select a category and click "Generate" to fill this space with inspiration.</p>
                 </motion.div>
               )}
-              </AnimatePresence>
 
-              {showStaticContent && canLoadMore && (
-                <div className="flex justify-center mt-8">
-                  <Button onClick={handleLoadMore}>Load More</Button>              </div>
-              )}
+              </AnimatePresence>
             </motion.div>
           </Card>
         </main>

@@ -3,7 +3,7 @@
 import {
   MessageSquare,
   Bot,
-  Lightbulb,
+  HeartHandshake,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -49,10 +49,10 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/inspirations'} tooltip="Quotes">
+            <SidebarMenuButton asChild isActive={pathname === '/inspirations'} tooltip="Reflections">
               <Link href="/inspirations">
-                <Lightbulb />
-                <span>Quotes</span>
+                <HeartHandshake />
+                <span>Reflections</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
