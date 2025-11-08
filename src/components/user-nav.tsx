@@ -18,7 +18,9 @@ export function UserNav() {
   const { username, setUsername, isLoading } = useUsername();
 
   const handleLogout = () => {
-    // Also remove from local storage
+    if (username) {
+        localStorage.removeItem(`chatHistory_${username}`);
+    }
     localStorage.removeItem('username');
     setUsername(null);
   };
