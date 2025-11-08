@@ -11,7 +11,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const HomeworkHelperInputSchema = z.object({
+const HomeworkHelperInputSchema = z.object({
   question: z.string().optional().describe('The homework question typed by the user.'),
   imageDataUri: z.string().optional().describe("An image of the homework question, as a data URI."),
   wordLimit: z.string().describe('The desired word limit for the answer (e.g., "20-30 words", "No limit").'),
@@ -20,7 +20,7 @@ export const HomeworkHelperInputSchema = z.object({
 });
 export type HomeworkHelperInput = z.infer<typeof HomeworkHelperInputSchema>;
 
-export const HomeworkHelperOutputSchema = z.object({
+const HomeworkHelperOutputSchema = z.object({
   answer: z.string().describe('The AI-generated answer to the homework question.'),
   explanation: z.string().optional().describe('An optional, short explanation that provides context for the answer.'),
 });
