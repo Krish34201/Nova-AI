@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { NovaLogo } from '../nova-logo'
 import { UserNav } from '@/app/user-nav'
@@ -23,6 +24,13 @@ import { usePathname } from 'next/navigation'
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }
 
   return (
     <Sidebar>
@@ -39,7 +47,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Chat">
-              <Link href="/">
+              <Link href="/" onClick={handleLinkClick}>
                 <MessageSquare />
                 <span>Chat</span>
               </Link>
@@ -47,7 +55,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/recents'} tooltip="Recent Chats">
-              <Link href="/recents">
+              <Link href="/recents" onClick={handleLinkClick}>
                 <History />
                 <span>Recent Chats</span>
               </Link>
@@ -55,7 +63,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
            <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/study'} tooltip="Study AI">
-              <Link href="/study">
+              <Link href="/study" onClick={handleLinkClick}>
                 <GraduationCap />
                 <span>Study AI</span>
               </Link>
@@ -63,7 +71,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/agents'} tooltip="AI Agents">
-              <Link href="/agents">
+              <Link href="/agents" onClick={handleLinkClick}>
                 <Bot />
                 <span>AI Agents</span>
               </Link>
@@ -71,7 +79,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/inspirations'} tooltip="Reflections">
-              <Link href="/inspirations">
+              <Link href="/inspirations" onClick={handleLinkClick}>
                 <HeartHandshake />
                 <span>Reflections</span>
               </Link>
