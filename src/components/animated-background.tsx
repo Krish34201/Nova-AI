@@ -14,32 +14,39 @@ const AnimatedBackground = () => {
     // Only initialize Vanta on the client-side.
     // The VANTA object might not be immediately available after the script loads.
     // We'll use an interval to check for it.
-    if (typeof window !== 'undefined' && !vantaEffect) {
+    if (typeof window !== 'undefined') {
       const checkVanta = setInterval(() => {
-        if (window.VANTA && window.VANTA.NET) {
+        if (typeof window !== 'undefined' && window.VANTA && window.VANTA.NET) {
           clearInterval(checkVanta); // Stop checking once VANTA is found
-          setVantaEffect(
-            VANTA.NET({
-              el: vantaRef.current,
-              mouseControls: true,
-              touchControls: true,
-              gyroControls: false,
-              minHeight: 200.0,
-              minWidth: 200.0,
-              scale: 1.0,
-              scaleMobile: 1.0,
-              points: 12.0,
-              maxDistance: 0, // Set to 0 to remove lines
-              spacing: 15.0,
-              color: 0x0077ff, // Vibrant Blue
-              backgroundColor: 0x000020, // Deep Navy Blue
-            })
-          );
+          if (!vantaEffect) {
+            setVantaEffect(
+              VANTA.NET({
+                el: vantaRef.current,
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200.0,
+                minWidth: 200.0,
+                scale: 1.0,
+                scaleMobile: 1.0,
+                points: 16.0,
+                maxDistance: 0,
+                spacing: 18.0,
+                color: 0x00ffff, // Bright Cyan
+                backgroundColor: 0x000020,
+              })
+            );
+          }
         }
       }, 100); // Check every 100ms
-    }
 
-    // Cleanup function to destroy the Vanta effect when the component unmounts.
+      // Cleanup function to stop checking if the component unmounts
+      return () => clearInterval(checkVanta);
+    }
+  }, [vantaEffect]); // Re-run if vantaEffect changes
+
+  // Cleanup function to destroy the Vanta effect when the component unmounts.
+  useEffect(() => {
     return () => {
       if (vantaEffect) {
         vantaEffect.destroy();
