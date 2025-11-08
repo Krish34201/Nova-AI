@@ -11,7 +11,7 @@ const AnimatedBackground = React.memo(() => {
         muted
         playsInline
         className="w-full h-full object-cover"
-        src="https://motionbgs.com/media/8778/heart-of-the-singularity.960x540.mp4"
+        src="https://motionbgs.com/media/1085/plexus-blue.960x540.mp4"
       />
       <div className="absolute inset-0 w-full h-full bg-black/50" />
     </div>
