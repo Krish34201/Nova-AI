@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/app/sidebar';
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Paperclip, Send, Mic, X, File as FileIcon, Loader2, Sparkles } from 'lucide-react';
+import { Paperclip, Send, X, File as FileIcon } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -384,7 +384,7 @@ function ChatPageContent() {
                  <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                   <Textarea
                     placeholder={"Type your message, or drop a file..."}
-                    className="w-full resize-none bg-input pr-28 pl-12 min-h-[52px] rounded-xl border-transparent focus:border-primary/50 focus:ring-primary/50 transition-colors"
+                    className="w-full resize-none bg-input pr-16 pl-12 min-h-[52px] rounded-xl border-transparent focus:border-primary/50 focus:ring-primary/50 transition-colors"
                     rows={1}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -397,9 +397,6 @@ function ChatPageContent() {
                      </Button>
                   </div>
                   <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
-                    <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" disabled={isSending}>
-                      <Mic className="h-5 w-5" />
-                    </Button>
                     <Button size="icon" className="rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity" onClick={() => handleSend()} disabled={isSending || (!input.trim() && !attachedFile)}>
                       <Send className="h-5 w-5" />
                     </Button>
