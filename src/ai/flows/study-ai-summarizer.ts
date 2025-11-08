@@ -11,12 +11,12 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const StudyAiSummarizerInputSchema = z.object({
+const StudyAiSummarizerInputSchema = z.object({
   chapterText: z.string().describe('The full text content of the chapter to be summarized.'),
 });
 export type StudyAiSummarizerInput = z.infer<typeof StudyAiSummarizerInputSchema>;
 
-export const StudyAiSummarizerOutputSchema = z.object({
+const StudyAiSummarizerOutputSchema = z.object({
   easyPoints: z.array(z.string()).describe('A list of the most fundamental and easy-to-understand points from the chapter.'),
   mediumPoints: z.array(z.string()).describe('A list of the more detailed and intermediate-level points.'),
   advancedPoints: z.array(z.string()).describe('A list of advanced concepts, complex topics, or in-depth explanations for students aiming for top marks.'),
