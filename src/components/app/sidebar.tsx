@@ -27,9 +27,12 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="h-16 border-b">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <NovaLogo />
-          <span className="font-semibold text-lg group-data-[collapsible=icon]:hidden">Nova AI</span>
+          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+            <span className="font-semibold text-lg">Nova AI</span>
+            <span className="text-xs text-muted-foreground">OWNER - @eternal_krish</span>
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-2 flex-1">
@@ -79,9 +82,6 @@ export function AppSidebar() {
       <SidebarFooter className="p-2">
         <div className="p-2 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
           <UserNav />
-        </div>
-        <div className="text-center text-xs text-muted-foreground group-data-[collapsible=icon]:hidden pb-2">
-          Owner - ᎮʀɪᴍᴇKʀɪsʜㅤ⸙
         </div>
       </SidebarFooter>
     </Sidebar>
