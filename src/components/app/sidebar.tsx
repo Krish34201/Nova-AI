@@ -80,6 +80,9 @@ export function AppSidebar() {
         <div className="p-2 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
           <UserNav />
         </div>
+        <div className="text-center text-xs text-muted-foreground group-data-[collapsible=icon]:hidden pb-2">
+          Owner - ᎮʀɪᴍᴇKʀɪsʜㅤ⸙
+        </div>
       </SidebarFooter>
     </Sidebar>
   )
