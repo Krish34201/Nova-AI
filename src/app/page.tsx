@@ -329,14 +329,14 @@ export default function Home() {
              <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
               <Textarea
                 placeholder={"Type your message, or drop a file..."}
-                className="w-full resize-none bg-input pr-28 pl-10 min-h-[52px] rounded-2xl border-transparent focus:border-primary/50 focus:ring-primary/50 transition-colors"
+                className="w-full resize-none bg-input pr-28 pl-12 min-h-[52px] rounded-2xl border-transparent focus:border-primary/50 focus:ring-primary/50 transition-colors"
                 rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isSending}
               />
-              <div className="absolute top-1/2 left-3 transform -translate-y-1/2 flex items-center">
+              <div className="absolute top-1/2 left-4 transform -translate-y-1/2 flex items-center">
                  <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
                     <Paperclip className="h-5 w-5" />
                  </Button>
