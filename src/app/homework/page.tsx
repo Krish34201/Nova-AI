@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -22,8 +23,8 @@ export default function HomeworkPage() {
   const { toast } = useToast();
   const [question, setQuestion] = useState('');
   const [wordLimit, setWordLimit] = useState(wordLimits[0]);
-  const [subject, setSubject] = useState('');
-  const [style, setStyle] = useState('');
+  const [subject, setSubject] = useState('none');
+  const [style, setStyle] = useState('default');
   
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -70,8 +71,8 @@ export default function HomeworkPage() {
             question: question,
             imageDataUri: uploadedImage || undefined,
             wordLimit: wordLimit,
-            subject: subject || undefined,
-            style: style || undefined,
+            subject: subject === 'none' ? undefined : subject,
+            style: style === 'default' ? undefined : style,
         };
         const response = await homeworkHelper(input);
         setResult(response);
@@ -153,7 +154,7 @@ export default function HomeworkPage() {
                                 <Select value={style} onValueChange={setStyle} disabled={isLoading}>
                                     <SelectTrigger><SelectValue placeholder="Select a style" /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Default</SelectItem>
+                                        <SelectItem value="default">Default</SelectItem>
                                         {styles.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
@@ -164,7 +165,7 @@ export default function HomeworkPage() {
                             <Select value={subject} onValueChange={setSubject} disabled={isLoading}>
                                 <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {subjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                                 </SelectContent>
                             </Select>
