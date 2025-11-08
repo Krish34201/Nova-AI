@@ -28,6 +28,13 @@ type Message = {
   };
 };
 
+type StoredConversation = {
+    timestamp: number;
+    messages: Message[];
+}
+
+const CONVERSATION_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+
 export default function Home() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,8 +59,49 @@ export default function Home() {
         setIsLoadingPrompts(false);
       }
     }
-    fetchInitialPrompts();
-  }, []);
+
+    if (messages.length === 0) {
+        fetchInitialPrompts();
+    }
+  }, [messages.length]);
+
+  // Load messages from localStorage on initial render
+  useEffect(() => {
+    if (username) {
+      try {
+        const storedConversationRaw = localStorage.getItem(`chatHistory_${username}`);
+        if (storedConversationRaw) {
+          const storedConversation: StoredConversation = JSON.parse(storedConversationRaw);
+          const now = new Date().getTime();
+
+          if (now - storedConversation.timestamp < CONVERSATION_EXPIRATION_MS) {
+            setMessages(storedConversation.messages);
+          } else {
+            localStorage.removeItem(`chatHistory_${username}`);
+          }
+        }
+      } catch (error) {
+        console.error("Could not load chat history:", error);
+      }
+    }
+  }, [username]);
+
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (username && messages.length > 0) {
+        try {
+            const conversationToStore: StoredConversation = {
+                timestamp: new Date().getTime(),
+                messages: messages,
+            };
+            localStorage.setItem(`chatHistory_${username}`, JSON.stringify(conversationToStore));
+        } catch (error) {
+            console.error("Could not save chat history:", error);
+        }
+    }
+  }, [messages, username]);
+
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -144,7 +192,8 @@ export default function Home() {
          };
          return;
       } else {
-        const aiResponse = await personalizedResponse({ query: currentInput, userName: username || undefined });
+        const pastInteractions = messages.slice(-5).map(m => `${m.isUser ? 'User' : 'AI'}: ${m.text}`);
+        const aiResponse = await personalizedResponse({ query: currentInput, userName: username || undefined, pastInteractions });
         const aiMessage: Message = {
             text: aiResponse.response,
             isUser: false,
