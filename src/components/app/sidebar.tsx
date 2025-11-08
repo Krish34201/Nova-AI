@@ -4,7 +4,8 @@ import {
   MessageSquare,
   Bot,
   HeartHandshake,
-  History
+  History,
+  GraduationCap
 } from 'lucide-react'
 import {
   Sidebar,
@@ -46,6 +47,14 @@ export function AppSidebar() {
               <Link href="/recents">
                 <History />
                 <span>Recent Chats</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/study'} tooltip="Study AI">
+              <Link href="/study">
+                <GraduationCap />
+                <span>Study AI</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
