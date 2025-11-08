@@ -5,7 +5,7 @@ import { AppSidebar } from '@/components/app/sidebar';
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { History, Sparkles, MessageSquarePlus } from 'lucide-react';
+import { History, MessageSquarePlus } from 'lucide-react';
 import { useUsername } from '@/components/username-provider';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -13,6 +13,7 @@ import { File as FileIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { NovaLogo } from '@/components/nova-logo';
 
 type Message = {
   text: string;
@@ -128,9 +129,9 @@ export default function RecentsPage() {
                                 className={cn('flex items-start gap-4', message.isUser ? 'justify-end' : '')}
                             >
                                 {!message.isUser && (
-                                    <Avatar className="h-9 w-9 border border-white/10">
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
-                                        <Sparkles className="w-5 h-5 text-black/80" />
+                                    <Avatar className="h-9 w-9 border-none bg-transparent">
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <NovaLogo />
                                     </div>
                                     </Avatar>
                                 )}

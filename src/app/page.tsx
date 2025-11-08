@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NovaLogo } from '@/components/nova-logo';
 
 type Message = {
   text: string;
@@ -294,9 +295,9 @@ function ChatPageContent() {
                   transition={{ duration: 0.3 }}
                 >
                   {!message.isUser && (
-                    <Avatar className="h-9 w-9 border border-white/10">
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
-                          <Sparkles className="w-5 h-5 text-black/80" />
+                    <Avatar className="h-9 w-9 border-none bg-transparent">
+                      <div className="w-full h-full flex items-center justify-center">
+                          <NovaLogo />
                       </div>
                     </Avatar>
                   )}
@@ -345,9 +346,9 @@ function ChatPageContent() {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
                 >
-                    <Avatar className="h-9 w-9 border border-white/10">
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-secondary">
-                            <Sparkles className="w-5 h-5 text-black/80" />
+                    <Avatar className="h-9 w-9 border-none bg-transparent">
+                        <div className="w-full h-full flex items-center justify-center">
+                            <NovaLogo />
                         </div>
                     </Avatar>
                     <div className="flex-1 space-y-2 max-w-2xl">
