@@ -1,59 +1,156 @@
 'use client';
 
-import React, { useRef, useEffect, memo } from 'react';
+import React, { useRef, useEffect, memo, useCallback } from 'react';
+import { useTheme } from 'next-themes';
 
-const AnimatedBackground = memo(() => {
+// Utility to get HSL from CSS variable
+const getHslFromCss = (variableName: string) => {
+    if (typeof window === 'undefined') return { h: 0, s: 0, l: 0 };
+    const style = getComputedStyle(document.documentElement);
+    const hslString = style.getPropertyValue(variableName).trim();
+    if (!hslString) return { h: 0, s: 0, l: 0 };
+    const [h, s, l] = hslString.split(' ').map(parseFloat);
+    return { h, s, l };
+};
+
+class Particle {
+  x: number;
+  y: number;
+  size: number;
+  speedY: number;
+  color: string;
+  opacity: number;
+
+  constructor(canvasWidth: number, canvasHeight: number, color: string) {
+    this.x = Math.random() * canvasWidth;
+    this.y = Math.random() * canvasHeight;
+    this.size = Math.random() * 2 + 1; // Smaller base size
+    this.speedY = Math.random() * 0.5 + 0.1; // Slower upward speed
+    this.color = color;
+    this.opacity = Math.random() * 0.5 + 0.2; // Opacity for depth
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  update(canvasWidth: number, canvasHeight: number) {
+    this.y -= this.speedY;
+    if (this.y < -this.size) {
+      this.y = canvasHeight + this.size;
+      this.x = Math.random() * canvasWidth;
+    }
+  }
+}
+
+class AuroraParticle {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  decay: number;
+  color: string;
+
+  constructor(x: number, y: number, color: string) {
+    this.x = x;
+    this.y = y;
+    this.size = Math.random() * 3 + 2;
+    this.opacity = 1;
+    this.decay = Math.random() * 0.015 + 0.01;
+    this.color = color;
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  update() {
+    this.opacity -= this.decay;
+    return this.opacity > 0;
+  }
+}
+
+const AnimatedBackgroundComponent = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const { resolvedTheme } = useTheme();
 
+  const createAnimation = useCallback((canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
+    if (!ctx) return () => {};
+
     let particles: Particle[] = [];
+    let auroraParticles: AuroraParticle[] = [];
     let animationFrameId: number;
-    
+    let primaryColorHsl: { h: number, s: number, l: number };
+    let secondaryColorHsl: { h: number, s: number, l: number };
+
+    const mouse = { x: Infinity, y: Infinity };
+
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
       ctx.scale(dpr, dpr);
       
-      const primaryColorH = 180; // Cyan
-      const secondaryColorH = 280; // Magenta
+      primaryColorHsl = getHslFromCss('--primary');
+      secondaryColorHsl = getHslFromCss('--secondary');
 
       particles = [];
-      const numParticles = Math.floor((canvas.width * canvas.height) / (dpr * dpr * 25000));
+      const numParticles = Math.floor((canvas.width * canvas.height) / (dpr * dpr * 20000));
       for (let i = 0; i < numParticles; i++) {
-        const colorH = Math.random() < 0.2 ? secondaryColorH : primaryColorH;
-        particles.push(new Particle(canvas.width / dpr, canvas.height / dpr, colorH));
+        const colorH = Math.random() < 0.2 ? secondaryColorHsl.h : primaryColorHsl.h;
+        const color = `hsl(${colorH}, 100%, 75%)`;
+        particles.push(new Particle(canvas.width / dpr, canvas.height / dpr, color));
       }
     };
 
-    const mouse = { x: Infinity, y: Infinity };
     const handleMouseMove = (event: MouseEvent) => {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = event.clientX - rect.left;
-        mouse.y = event.clientY - rect.top;
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = event.clientX - rect.left;
+      mouse.y = event.clientY - rect.top;
+      
+      const colorH = Math.random() < 0.5 ? primaryColorHsl.h : secondaryColorHsl.h;
+      const color = `hsl(${colorH}, 100%, 80%)`;
+      auroraParticles.push(new AuroraParticle(mouse.x, mouse.y, color));
     };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('resize', resizeCanvas);
+
     resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('mousemove', handleMouseMove);
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       const dpr = window.devicePixelRatio || 1;
       const width = canvas.width / dpr;
       const height = canvas.height / dpr;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.shadowBlur = 0;
 
+      // Draw main particles
       particles.forEach(p => {
-        p.update(mouse, width, height);
+        p.update(width, height);
         p.draw(ctx);
       });
+
+      // Draw and update aurora particles
+      auroraParticles = auroraParticles.filter(p => {
+        p.draw(ctx);
+        return p.update();
+      });
+      
+      // Reset global alpha and shadow blur after drawing all particles
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
 
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -63,11 +160,17 @@ const AnimatedBackground = memo(() => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('mousemove', handleMouseMove);
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
+
+  useEffect(() => {
+    let cleanup: () => void = () => {};
+    if (canvasRef.current) {
+      cleanup = createAnimation(canvasRef.current);
+    }
+    return cleanup;
+  }, [createAnimation, resolvedTheme]);
 
   return (
     <div className="fixed top-0 left-0 w-full h-full -z-10 bg-background">
@@ -75,63 +178,8 @@ const AnimatedBackground = memo(() => {
       <canvas ref={canvasRef} className="opacity-50 w-full h-full" />
     </div>
   );
-});
+};
 
-class Particle {
-  x: number;
-  y: number;
-  size: number;
-  density: number;
-  colorH: number;
-  vx: number;
-  vy: number;
-
-  constructor(canvasWidth: number, canvasHeight: number, colorH: number) {
-    this.x = Math.random() * canvasWidth;
-    this.y = Math.random() * canvasHeight;
-    this.size = Math.random() * 2.5 + 1;
-    this.density = (Math.random() * 30) + 15;
-    this.colorH = colorH;
-    this.vx = (Math.random() - 0.5) * 0.2;
-    this.vy = (Math.random() - 0.5) * 0.2;
-  }
-
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = `hsl(${this.colorH}, 100%, 75%)`;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = `hsl(${this.colorH}, 100%, 50%)`;
-    
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.shadowBlur = 0;
-  }
-
-  update(mouse: { x: number; y: number }, canvasWidth: number, canvasHeight: number) {
-    const dxMouse = mouse.x - this.x;
-    const dyMouse = mouse.y - this.y;
-    const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-    const maxDistance = 120;
-    
-    if (distanceMouse < maxDistance) {
-      const force = (maxDistance - distanceMouse) / maxDistance;
-      const forceDirectionX = dxMouse / distanceMouse;
-      const forceDirectionY = dyMouse / distanceMouse;
-      this.x -= forceDirectionX * force * this.density * 0.015;
-      this.y -= forceDirectionY * force * this.density * 0.015;
-    } else {
-        this.x += this.vx;
-        this.y += this.vy;
-    }
-    
-    if (this.x > canvasWidth + this.size) this.x = -this.size;
-    if (this.x < -this.size) this.x = canvasWidth + this.size;
-    if (this.y > canvasHeight + this.size) this.y = -this.size;
-    if (this.y < -this.size) this.y = canvasHeight + this.size;
-  }
-}
-
-AnimatedBackground.displayName = 'AnimatedBackground';
+AnimatedBackgroundComponent.displayName = 'AnimatedBackground';
+const AnimatedBackground = memo(AnimatedBackgroundComponent);
 export default AnimatedBackground;
