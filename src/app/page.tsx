@@ -12,7 +12,6 @@ import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { personalizedResponse } from '@/ai/flows/personalized-response';
 import { summarizeDocument } from '@/ai/flows/summarize-document';
-import { generateInitialPrompts } from '@/ai/flows/generate-initial-prompt';
 import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
 import Image from 'next/image';
@@ -37,6 +36,13 @@ type StoredConversation = {
 
 const CONVERSATION_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+const STATIC_INITIAL_PROMPTS = [
+  'Write a short story about a robot who discovers music.',
+  'Generate a python snippet to fetch and parse a JSON API.',
+  'Brainstorm three marketing slogans for a new brand of coffee.',
+  'Explain the concept of quantum entanglement in simple terms.'
+];
+
 function ChatPageContent() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,29 +51,12 @@ function ChatPageContent() {
   const router = useRouter();
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [initialPrompts, setInitialPrompts] = useState<string[]>([]);
-  const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
+  const [initialPrompts, setInitialPrompts] = useState<string[]>(STATIC_INITIAL_PROMPTS);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchInitialPrompts() {
-      try {
-        const result = await generateInitialPrompts({});
-        setInitialPrompts(result.suggestedPrompts);
-      } catch (error) {
-        console.error('Error generating initial prompts:', error);
-      } finally {
-        setIsLoadingPrompts(false);
-      }
-    }
-
-    if (messages.length === 0) {
-        fetchInitialPrompts();
-    }
-  }, [messages.length]);
 
   // Load messages from localStorage on initial render if 'continue=true'
   useEffect(() => {
