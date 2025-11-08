@@ -6,7 +6,7 @@ import { Book } from 'lucide-react'
 
 export default function MemoryPage() {
   return (
-    <div className="flex h-screen w-full bg-background">
+    <div className="flex h-screen w-full bg-transparent">
       <AppSidebar />
       <SidebarInset className="flex flex-col">
         <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">

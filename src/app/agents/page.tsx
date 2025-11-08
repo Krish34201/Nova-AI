@@ -33,7 +33,7 @@ export default function AgentsPage() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background">
+    <div className="flex h-screen w-full bg-transparent">
       <AppSidebar />
       <SidebarInset className="flex flex-col">
         <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
@@ -48,8 +48,9 @@ export default function AgentsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="w-full max-w-3xl"
           >
-            <Card className="max-w-3xl w-full shadow-2xl bg-card/80 backdrop-blur-sm border-border">
+            <Card className="shadow-2xl bg-card/80 backdrop-blur-sm border-border">
               <CardHeader>
                 <CardTitle>Automate a Complex Task</CardTitle>
                 <CardDescription>
