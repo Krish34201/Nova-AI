@@ -61,7 +61,7 @@ export default function StudyAiPage() {
               <CardContent>
                 <div className="grid gap-4 mb-6">
                   <Textarea
-                    placeholder="Paste the entire text of your chapter here..."
+                    placeholder="Enter your Class, Subject and chapter to let AI summarize the chapter for you."
                     className="w-full resize-none min-h-[200px] bg-input p-4 rounded-lg"
                     value={chapterText}
                     onChange={(e) => setChapterText(e.target.value)}
