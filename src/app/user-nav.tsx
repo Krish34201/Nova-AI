@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useUsername } from "@/components/username-provider"
-import { Skeleton } from "./ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { LogOut } from "lucide-react"
 
 export function UserNav() {

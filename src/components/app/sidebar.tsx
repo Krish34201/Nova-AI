@@ -4,6 +4,7 @@ import {
   MessageSquare,
   Bot,
   HeartHandshake,
+  History
 } from 'lucide-react'
 import {
   Sidebar,
@@ -15,7 +16,7 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar'
 import { NovaLogo } from '../nova-logo'
-import { UserNav } from '../user-nav'
+import { UserNav } from '@/app/user-nav'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -37,6 +38,14 @@ export function AppSidebar() {
               <Link href="/">
                 <MessageSquare />
                 <span>Chat</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/recents'} tooltip="Recent Chats">
+              <Link href="/recents">
+                <History />
+                <span>Recent Chats</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
