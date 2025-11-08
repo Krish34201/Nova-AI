@@ -3,9 +3,7 @@
 import {
   MessageSquare,
   Bot,
-  Book,
   Lightbulb,
-  Code2,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -18,7 +16,6 @@ import {
 } from '@/components/ui/sidebar'
 import { NovaLogo } from '../nova-logo'
 import { UserNav } from '../user-nav'
-import { Separator } from '../ui/separator'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -56,22 +53,6 @@ export function AppSidebar() {
               <Link href="/inspirations">
                 <Lightbulb />
                 <span>Quotes</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/tools'} tooltip="Tools">
-              <Link href="/tools">
-                <Code2 />
-                <span>Tools</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/memory'} tooltip="Memory">
-              <Link href="/memory">
-                <Book />
-                <span>Memory</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
