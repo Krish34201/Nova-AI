@@ -32,6 +32,7 @@ export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const storedUsername = localStorage.getItem('username');
       if (storedUsername) {
         setUsername(storedUsername);
+        setShowDialog(false);
       } else {
         setShowDialog(true);
       }
@@ -43,6 +44,12 @@ export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
+  useEffect(() => {
+    if (!isLoading && !username) {
+        setShowDialog(true);
+    }
+  }, [username, isLoading]);
+
   const handleSaveUsername = () => {
     if (inputUsername.trim()) {
       try {
@@ -51,6 +58,7 @@ export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.error('Could not save to local storage:', error);
       }
       setUsername(inputUsername.trim());
+      setInputUsername('');
       setShowDialog(false);
     }
   };
