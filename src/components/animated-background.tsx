@@ -1,20 +1,20 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback, memo } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 
 const AnimatedBackground = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameId = useRef<number>();
-
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
+    
     let particles: Particle[] = [];
-
+    let animationFrameId: number;
+    
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
@@ -26,7 +26,7 @@ const AnimatedBackground = memo(() => {
       const secondaryColorH = 280; // Magenta
 
       particles = [];
-      const numParticles = Math.floor((canvas.width * canvas.height) / (dpr * dpr * 20000));
+      const numParticles = Math.floor((canvas.width * canvas.height) / (dpr * dpr * 25000));
       for (let i = 0; i < numParticles; i++) {
         const colorH = Math.random() < 0.2 ? secondaryColorH : primaryColorH;
         particles.push(new Particle(canvas.width / dpr, canvas.height / dpr, colorH));
@@ -35,9 +35,9 @@ const AnimatedBackground = memo(() => {
 
     const mouse = { x: Infinity, y: Infinity };
     const handleMouseMove = (event: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = event.clientX - rect.left;
-      mouse.y = event.clientY - rect.top;
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = event.clientX - rect.left;
+        mouse.y = event.clientY - rect.top;
     };
     
     window.addEventListener('mousemove', handleMouseMove);
@@ -66,14 +66,14 @@ const AnimatedBackground = memo(() => {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `hsla(180, 100%, 70%, ${opacity * 0.3})`;
+            ctx.strokeStyle = `hsla(180, 100%, 70%, ${opacity * 0.2})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
         }
       }
 
-      animationFrameId.current = requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
@@ -81,8 +81,8 @@ const AnimatedBackground = memo(() => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('mousemove', handleMouseMove);
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
     };
   }, []);
@@ -99,8 +99,6 @@ class Particle {
   x: number;
   y: number;
   size: number;
-  baseX: number;
-  baseY: number;
   density: number;
   colorH: number;
   vx: number;
@@ -109,56 +107,49 @@ class Particle {
   constructor(canvasWidth: number, canvasHeight: number, colorH: number) {
     this.x = Math.random() * canvasWidth;
     this.y = Math.random() * canvasHeight;
-    this.size = Math.random() * 2.5 + 1.5; // Bigger particles
-    this.baseX = this.x;
-    this.baseY = this.y;
-    this.density = (Math.random() * 40) + 20;
+    this.size = Math.random() * 2.5 + 1;
+    this.density = (Math.random() * 30) + 15;
     this.colorH = colorH;
-    this.vx = (Math.random() - 0.5) * 0.3;
-    this.vy = (Math.random() - 0.5) * 0.3 - 0.2; // Tend to move upwards
+    this.vx = (Math.random() - 0.5) * 0.2;
+    this.vy = (Math.random() - 0.5) * 0.2;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = `hsl(${this.colorH}, 100%, 80%)`;
-    ctx.shadowBlur = 20; // More glow
-    ctx.shadowColor = `hsl(${this.colorH}, 100%, 60%)`;
+    ctx.fillStyle = `hsl(${this.colorH}, 100%, 75%)`;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = `hsl(${this.colorH}, 100%, 50%)`;
     
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.closePath();
     ctx.fill();
     
-    // Reset shadow for other elements
     ctx.shadowBlur = 0;
   }
 
   update(mouse: { x: number; y: number }, canvasWidth: number, canvasHeight: number) {
-    // Mouse interaction
     const dxMouse = mouse.x - this.x;
     const dyMouse = mouse.y - this.y;
     const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-    const maxDistance = 100;
+    const maxDistance = 120;
     
     if (distanceMouse < maxDistance) {
       const force = (maxDistance - distanceMouse) / maxDistance;
       const forceDirectionX = dxMouse / distanceMouse;
       const forceDirectionY = dyMouse / distanceMouse;
-      this.x -= forceDirectionX * force * this.density * 0.02;
-      this.y -= forceDirectionY * force * this.density * 0.02;
+      this.x -= forceDirectionX * force * this.density * 0.015;
+      this.y -= forceDirectionY * force * this.density * 0.015;
     } else {
-        // Automatic movement
         this.x += this.vx;
         this.y += this.vy;
     }
     
-    // Wall collision and looping
     if (this.x > canvasWidth + this.size) this.x = -this.size;
     if (this.x < -this.size) this.x = canvasWidth + this.size;
     if (this.y > canvasHeight + this.size) this.y = -this.size;
     if (this.y < -this.size) this.y = canvasHeight + this.size;
   }
 }
-
 
 AnimatedBackground.displayName = 'AnimatedBackground';
 export default AnimatedBackground;
