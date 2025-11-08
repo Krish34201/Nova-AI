@@ -1,16 +1,53 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+// Make sure to declare VANTA using `var` so it's globally available
+// after the script loads.
+declare var VANTA: any;
+
 const AnimatedBackground = () => {
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
+  const vantaRef = useRef(null);
+
+  useEffect(() => {
+    // Only initialize Vanta on the client-side
+    // and when the VANTA and THREE objects are available.
+    if (typeof window !== 'undefined' && VANTA && VANTA.NET) {
+      if (!vantaEffect) {
+        setVantaEffect(
+          VANTA.NET({
+            el: vantaRef.current,
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.0,
+            minWidth: 200.0,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            points: 12.0,
+            maxDistance: 25.0,
+            spacing: 15.0,
+            color: 0x00eaff, // Neon Cyan
+            backgroundColor: 0x0, // Black background for Vanta
+          })
+        );
+      }
+    }
+    
+    // Cleanup function to destroy the Vanta effect when the component unmounts.
+    return () => {
+      if (vantaEffect) {
+        vantaEffect.destroy();
+      }
+    };
+  }, [vantaEffect]);
+
   return (
-    <div className="fixed inset-0 w-full h-full z-[-1] overflow-hidden bg-background">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-full object-cover"
-        src="https://videos.pexels.com/video-files/3196887/3196887-hd_1920_1080_30fps.mp4"
-      ></video>
-      <div className="absolute inset-0 bg-black/60"></div>
-    </div>
+    <div
+      ref={vantaRef}
+      className="fixed top-0 left-0 w-full h-full -z-10"
+    />
   );
 };
 

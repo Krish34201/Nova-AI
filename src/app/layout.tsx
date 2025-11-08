@@ -5,6 +5,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { UsernameProvider } from '@/components/username-provider';
 import AnimatedBackground from '@/components/animated-background';
 import { ThemeProvider } from 'next-themes';
+import Script from 'next/script';
 
 
 export const metadata: Metadata = {
@@ -34,6 +35,8 @@ export default function RootLayout({
             </UsernameProvider>
             <Toaster />
         </ThemeProvider>
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js" />
+        <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js" />
       </body>
     </html>
   );
