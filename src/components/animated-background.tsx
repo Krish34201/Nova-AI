@@ -11,30 +11,34 @@ const AnimatedBackground = () => {
   const vantaRef = useRef(null);
 
   useEffect(() => {
-    // Only initialize Vanta on the client-side
-    // and when the VANTA and THREE objects are available.
-    if (typeof window !== 'undefined' && VANTA && VANTA.NET) {
-      if (!vantaEffect) {
-        setVantaEffect(
-          VANTA.NET({
-            el: vantaRef.current,
-            mouseControls: true,
-            touchControls: true,
-            gyroControls: false,
-            minHeight: 200.0,
-            minWidth: 200.0,
-            scale: 1.0,
-            scaleMobile: 1.0,
-            points: 12.0,
-            maxDistance: 25.0,
-            spacing: 15.0,
-            color: 0x00eaff, // Neon Cyan
-            backgroundColor: 0x0, // Black background for Vanta
-          })
-        );
-      }
+    // Only initialize Vanta on the client-side.
+    // The VANTA object might not be immediately available after the script loads.
+    // We'll use an interval to check for it.
+    if (typeof window !== 'undefined' && !vantaEffect) {
+      const checkVanta = setInterval(() => {
+        if (window.VANTA && window.VANTA.NET) {
+          clearInterval(checkVanta); // Stop checking once VANTA is found
+          setVantaEffect(
+            VANTA.NET({
+              el: vantaRef.current,
+              mouseControls: true,
+              touchControls: true,
+              gyroControls: false,
+              minHeight: 200.0,
+              minWidth: 200.0,
+              scale: 1.0,
+              scaleMobile: 1.0,
+              points: 12.0,
+              maxDistance: 25.0,
+              spacing: 15.0,
+              color: 0x00eaff, // Neon Cyan
+              backgroundColor: 0x0, // Black background for Vanta
+            })
+          );
+        }
+      }, 100); // Check every 100ms
     }
-    
+
     // Cleanup function to destroy the Vanta effect when the component unmounts.
     return () => {
       if (vantaEffect) {
