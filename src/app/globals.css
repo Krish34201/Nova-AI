@@ -82,6 +82,5 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background: radial-gradient(circle at center, hsl(225, 30%, 12%), hsl(var(--background)));
   }
 }
