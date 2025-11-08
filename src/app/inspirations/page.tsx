@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HeartHandshake, Wand2, Loader2 } from 'lucide-react';
-import { generateEmotionalContent, type GenerateEmotionalContentOutput } from '@/ai/flows/generate-emotional-content';
+import { generateEmotionalContent, type ContentItem } from '@/ai/flows/generate-emotional-content';
 
 type Category = 'Nostalgia & Memories' | 'Love & Heartache' | 'Hope & Healing' | 'Bittersweet Moments' | 'Personal Growth' | 'Inner Strength & Resilience' | 'Encouragement' | 'Self-Discovery';
 const categories: Category[] = ['Nostalgia & Memories', 'Love & Heartache', 'Hope & Healing', 'Bittersweet Moments', 'Personal Growth', 'Inner Strength & Resilience', 'Encouragement', 'Self-Discovery'];
@@ -25,7 +25,7 @@ const iconMap: { [key: string]: React.ReactNode } = {
 
 export default function InspirationsPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category>(categories[0]);
-  const [generatedContent, setGeneratedContent] = useState<GenerateEmotionalContentOutput | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<ContentItem[] | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateContent = async () => {
@@ -33,15 +33,13 @@ export default function InspirationsPage() {
     setGeneratedContent(null);
     try {
       const result = await generateEmotionalContent({ category: selectedCategory });
-      setGeneratedContent(result);
+      setGeneratedContent(result.items);
     } catch (error) {
       console.error("Error generating content:", error);
     } finally {
       setIsGenerating(false);
     }
   };
-
-  const contentAsArray = generatedContent ? Object.values(generatedContent) : [];
 
   return (
     <div className="flex h-screen w-full bg-transparent">
@@ -110,16 +108,16 @@ export default function InspirationsPage() {
               {generatedContent && (
                 <motion.div
                   key="ai-content"
-                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                   initial="hidden"
                   animate="visible"
                   variants={{
                     visible: {
-                      transition: { staggerChildren: 0.07, delayChildren: 0.1 }
+                      transition: { staggerChildren: 0.03, delayChildren: 0.1 }
                     }
                   }}
                 >
-                  {contentAsArray.map((item, index) => (
+                  {generatedContent.map((item, index) => (
                     <motion.div
                       key={index}
                        variants={{

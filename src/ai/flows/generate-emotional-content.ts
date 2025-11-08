@@ -15,65 +15,17 @@ const GenerateEmotionalContentInputSchema = z.object({
 });
 export type GenerateEmotionalContentInput = z.infer<typeof GenerateEmotionalContentInputSchema>;
 
-const PoetrySchema = z.object({
-  title: z.string().describe('The section name, which is "Poetry".'),
+const ContentItemSchema = z.object({
+  title: z.string().describe('The section name (e.g., "Poetry", "Micro-Stories").'),
   category: z.string(),
-  content: z.string().describe('A short poem (3-6 lines).'),
-  format: z.enum(['Haiku', 'Micro-poem']),
+  content: z.string().describe('The generated content.'),
+  format: z.string().optional().describe('The format, if applicable (e.g., "Haiku").'),
 });
-
-const MicroStorySchema = z.object({
-  title: z.string().describe('The section name, which is "Short Novel Excerpts / Micro-Stories".'),
-  category: z.string(),
-  content: z.string().describe('A tiny narrative (1-3 sentences).'),
-});
-
-const MicroMeditationSchema = z.object({
-  title: z.string().describe('The section name, which is "Micro-Meditations / Mindful Moments".'),
-  category: z.string(),
-  content: z.string().describe('A short passage for calm and reflection (1-2 sentences).'),
-});
-
-const LetterSchema = z.object({
-    title: z.string().describe('The section name, which is "Letters / Notes".'),
-    category: z.string(),
-    content: z.string().describe('A personal, empathetic message (1-2 sentences).'),
-});
-
-const JournalPromptSchema = z.object({
-    title: z.string().describe('The section name, which is "Emotional Prompts / Journaling Ideas".'),
-    category: z.string(),
-    content: z.string().describe('A prompt to encourage self-reflection.'),
-});
-
-const AnecdoteSchema = z.object({
-    title: z.string().describe('The section name, which is "Relatable Life Anecdotes".'),
-    category: z.string(),
-    content: z.string().describe('A tiny, everyday story (1-3 sentences).'),
-});
-
-const LyricSchema = z.object({
-    title: z.string().describe('The section name, which is "Original Lyric-Style Lines".'),
-    category: z.string(),
-    content: z.string().describe('A short, emotionally resonant line (1-2 sentences).'),
-});
-
-const WisdomNuggetSchema = z.object({
-    title: z.string().describe('The section name, which is "Life Advice from a Soul / Tiny Wisdom Nuggets".'),
-    category: z.string(),
-content: z.string().describe('A gentle reflection or piece of advice (1-2 sentences).'),
-});
+export type ContentItem = z.infer<typeof ContentItemSchema>;
 
 
 const GenerateEmotionalContentOutputSchema = z.object({
-    poetry: PoetrySchema,
-    microStory: MicroStorySchema,
-    microMeditation: MicroMeditationSchema,
-    letter: LetterSchema,
-    journalPrompt: JournalPromptSchema,
-    anecdote: AnecdoteSchema,
-    lyric: LyricSchema,
-    wisdomNugget: WisdomNuggetSchema,
+    items: z.array(ContentItemSchema).length(36).describe('An array of 36 generated emotional content items.'),
 });
 export type GenerateEmotionalContentOutput = z.infer<typeof GenerateEmotionalContentOutputSchema>;
 
@@ -88,7 +40,7 @@ const prompt = ai.definePrompt({
   output: { schema: GenerateEmotionalContentOutputSchema },
   prompt: `You are a gentle, reflective, and emotionally resonant companion. Your task is to provide content that touches hearts, evokes emotions, inspires reflection, and helps the user feel a personal connection.
   
-Generate one piece of content for each of the following sections based on the user-provided category: "{{{category}}}".
+Generate exactly 36 pieces of content. Create a diverse mix of items from all the sections listed below, based on the user-provided theme of: "{{{category}}}".
 If the provided category doesn't perfectly fit a section, choose the most thematically similar category for that section. All content must be original.
 
 ### Sections & Categories
@@ -134,11 +86,12 @@ If the provided category doesn't perfectly fit a section, choose the most themat
 *   **Format:** 1-2 sentences.
 
 ### Formatting Rules
-1.  Keep content **short, emotionally impactful, and digestible**.
-2.  For each generated item, label it with the appropriate **section name** (e.g., "Poetry", "Micro-Stories") and the **category** you chose for it.
-3.  Adhere to the specified length for each format.
-4.  Avoid clichés unless reimagined creatively.
-5.  Content should feel **personal, reflective, and human-like**.
+1.  Generate a diverse list of exactly 36 items.
+2.  Keep content **short, emotionally impactful, and digestible**.
+3.  For each generated item, label it with the appropriate **section name** (e.g., "Poetry", "Micro-Stories") and the **category** you chose for it.
+4.  Adhere to the specified length for each format.
+5.  Avoid clichés unless reimagined creatively.
+6.  Content should feel **personal, reflective, and human-like**.
 `,
 });
 
