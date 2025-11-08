@@ -17,8 +17,8 @@ export default function MemoryPage() {
         </header>
 
         <main className="flex-1 flex items-center justify-center p-6">
-           <div >
-            <Card className="w-full max-w-2xl text-center shadow-2xl bg-card/80 backdrop-blur-sm">
+           <div className="w-full max-w-2xl">
+            <Card className="text-center shadow-2xl bg-card/80 backdrop-blur-sm border-border">
               <CardHeader>
                 <div className="flex justify-center mb-4">
                   <Book className="h-12 w-12 text-primary" />

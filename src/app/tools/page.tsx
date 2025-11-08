@@ -21,22 +21,24 @@ export default function ToolsPage() {
     <div className="flex h-screen w-full bg-background">
       <AppSidebar />
       <SidebarInset className="flex flex-col">
-        <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card">
+        <header className="flex h-16 items-center px-6 border-b shrink-0 bg-card/50 backdrop-blur-sm z-10">
           <SidebarTrigger />
           <div className="flex items-center gap-4 ml-4">
             <h1 className="text-xl font-semibold">Tools</h1>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-2">Available Tools</h2>
-            <p className="text-muted-foreground mb-6">
-              These are the tools that Nova AI can use to help you with your requests.
-            </p>
+            <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-2">Available Tools</h2>
+                <p className="text-muted-foreground">
+                These are the tools that Nova AI can use to help you with your requests.
+                </p>
+            </div>
             <div className="grid gap-6 md:grid-cols-2">
               {tools.map((tool) => (
-                <Card key={tool.name}>
+                <Card key={tool.name} className="bg-card/80 border-border backdrop-blur-sm shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-transform duration-300">
                   <CardHeader className="flex flex-row items-center gap-4">
                     <div className="bg-primary/10 p-3 rounded-md text-primary">
                       {tool.icon}
@@ -50,7 +52,7 @@ export default function ToolsPage() {
               ))}
             </div>
           </div>
-        </div>
+        </main>
       </SidebarInset>
     </div>
   )

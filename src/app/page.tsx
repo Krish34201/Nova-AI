@@ -203,7 +203,7 @@ export default function Home() {
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
               >
                 <Card 
-                  className="p-4 bg-card/80 backdrop-blur-lg border border-border hover:border-primary/50 hover:bg-card/90 cursor-pointer transition-all duration-300 group"
+                  className="p-4 bg-card/80 backdrop-blur-lg border border-border hover:border-primary/50 hover:bg-card/90 cursor-pointer transition-all duration-300 group shadow-lg hover:shadow-primary/20"
                   onClick={() => handlePromptClick(prompt)}
                 >
                   <p className="text-sm text-foreground group-hover:text-primary transition-colors">{prompt}</p>

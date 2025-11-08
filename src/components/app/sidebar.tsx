@@ -5,6 +5,7 @@ import {
   Bot,
   Book,
   Lightbulb,
+  Code2,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -55,6 +56,14 @@ export function AppSidebar() {
               <Link href="/inspirations">
                 <Lightbulb />
                 <span>Quotes</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/tools'} tooltip="Tools">
+              <Link href="/tools">
+                <Code2 />
+                <span>Tools</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
