@@ -11,7 +11,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const GenerateStoryInputSchema = z.object({
+const GenerateStoryInputSchema = z.object({
   category: z.string().describe('The genre of the story (e.g., Thriller, Romance).'),
   length: z.enum(['Micro', 'Short', 'Long']).describe('The desired length of the story.'),
   mood: z.string().describe('The mood or tone of the story (e.g., Dark, Lighthearted).'),
@@ -20,7 +20,7 @@ export const GenerateStoryInputSchema = z.object({
 });
 export type GenerateStoryInput = z.infer<typeof GenerateStoryInputSchema>;
 
-export const GenerateStoryOutputSchema = z.object({
+const GenerateStoryOutputSchema = z.object({
   story: z.string().describe('The generated story text.'),
 });
 export type GenerateStoryOutput = z.infer<typeof GenerateStoryOutputSchema>;
