@@ -26,33 +26,49 @@ interface AccessContextType {
 
 const AccessContext = createContext<AccessContextType | undefined>(undefined);
 
+// Function to generate a simple unique ID
+const generateDeviceId = () => {
+    return 'device_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
 export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { username, isLoading: isUsernameLoading, showUsernameDialog } = useUsername();
   
   const [hasSpecialKey, setHasSpecialKey] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
   const [showKeyDialog, setShowKeyDialog] = useState(false);
   const [inputKey, setInputKey] = useState('');
   const [keyError, setKeyError] = useState<string | null>(null);
 
-  // Effect to load access state from localStorage when username is available
+  // Effect to get or create a device ID
   useEffect(() => {
-    if (username) {
+    let storedDeviceId = localStorage.getItem('deviceId');
+    if (!storedDeviceId) {
+        storedDeviceId = generateDeviceId();
+        localStorage.setItem('deviceId', storedDeviceId);
+    }
+    setDeviceId(storedDeviceId);
+  }, []);
+
+  // Effect to load access state from localStorage when deviceId is available
+  useEffect(() => {
+    if (deviceId) {
       setIsLoading(true);
       try {
-        const storedKeyStatus = localStorage.getItem(`hasSpecialKey_${username}`);
-        const storedRequestCount = localStorage.getItem(`requestCount_${username}`);
-        const storedLastRequestDate = localStorage.getItem(`lastRequestDate_${username}`);
+        const storedKeyStatus = localStorage.getItem(`hasSpecialKey_${deviceId}`);
+        const storedRequestCount = localStorage.getItem(`requestCount_${deviceId}`);
+        const storedLastRequestDate = localStorage.getItem(`lastRequestDate_${deviceId}`);
         const today = new Date().toISOString().split('T')[0];
 
         if (storedKeyStatus === 'true') {
           setHasSpecialKey(true);
           setShowKeyDialog(false);
         } else {
-            // Only show dialog for the very first session
-            if (storedKeyStatus === null) { 
+            // Only show dialog for the very first session on this device
+            if (storedKeyStatus === null && username) { 
                 setShowKeyDialog(true);
             }
           
@@ -61,8 +77,8 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             } else {
                 // It's a new day, reset the count
                 setRequestCount(0);
-                localStorage.setItem(`requestCount_${username}`, '0');
-                localStorage.setItem(`lastRequestDate_${username}`, today);
+                localStorage.setItem(`requestCount_${deviceId}`, '0');
+                localStorage.setItem(`lastRequestDate_${deviceId}`, today);
             }
         }
       } catch (error) {
@@ -70,32 +86,31 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       } finally {
         setIsLoading(false);
       }
-    } else if (!isUsernameLoading) {
-        setIsLoading(false);
     }
-  }, [username, isUsernameLoading]);
+  }, [deviceId, username]);
 
   // This effect manages the dialog flow, ensuring the key dialog appears after username dialog
   useEffect(() => {
-    if (!showUsernameDialog && username && !hasSpecialKey) {
+    if (!showUsernameDialog && username && !hasSpecialKey && deviceId) {
         try {
-            const keyStatus = localStorage.getItem(`hasSpecialKey_${username}`);
-            if (keyStatus === null) { // only show if it's never been set
+            const keyStatus = localStorage.getItem(`hasSpecialKey_${deviceId}`);
+            if (keyStatus === null) { // only show if it's never been set for this device
                 setShowKeyDialog(true);
             }
         } catch (error) {
             console.error(error);
         }
     }
-  }, [showUsernameDialog, username, hasSpecialKey]);
+  }, [showUsernameDialog, username, hasSpecialKey, deviceId]);
 
 
   const handleKeyCheck = () => {
+    if (!deviceId) return;
     const trimmedKey = inputKey.trim();
     if (trimmedKey === SPECIAL_KEY) {
       setKeyError(null);
       try {
-        localStorage.setItem(`hasSpecialKey_${username}`, 'true');
+        localStorage.setItem(`hasSpecialKey_${deviceId}`, 'true');
       } catch (error) {
         console.error(error);
       }
@@ -107,17 +122,15 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const handleSkip = () => {
+    if (!deviceId) return;
     // Only set 'false' if the user explicitly skips.
-    // If they get the key wrong, the dialog should stay open.
-    if (inputKey.trim() === '') {
-        try {
-            localStorage.setItem(`hasSpecialKey_${username}`, 'false');
-        } catch (error) {
-            console.error(error)
-        }
-        setHasSpecialKey(false);
-        setShowKeyDialog(false);
+    try {
+        localStorage.setItem(`hasSpecialKey_${deviceId}`, 'false');
+    } catch (error) {
+        console.error(error)
     }
+    setHasSpecialKey(false);
+    setShowKeyDialog(false);
   };
   
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -127,13 +140,13 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const incrementRequestCount = () => {
-    if (!hasSpecialKey) {
+    if (!hasSpecialKey && deviceId) {
       const newCount = requestCount + 1;
       const today = new Date().toISOString().split('T')[0];
       setRequestCount(newCount);
       try {
-        localStorage.setItem(`requestCount_${username}`, String(newCount));
-        localStorage.setItem(`lastRequestDate_${username}`, today);
+        localStorage.setItem(`requestCount_${deviceId}`, String(newCount));
+        localStorage.setItem(`lastRequestDate_${deviceId}`, today);
       } catch (error) {
           console.error(error);
       }
