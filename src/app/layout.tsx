@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { UsernameProvider } from '@/components/username-provider';
+import { AccessProvider } from '@/components/access-provider';
 import AnimatedBackground from '@/components/animated-background';
 import { ThemeProvider } from 'next-themes';
 import Script from 'next/script';
@@ -31,9 +32,11 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
             <AnimatedBackground />
             <UsernameProvider>
-              <SidebarProvider>
-                {children}
-              </SidebarProvider>
+              <AccessProvider>
+                <SidebarProvider>
+                  {children}
+                </SidebarProvider>
+              </AccessProvider>
             </UsernameProvider>
             <Toaster />
         </ThemeProvider>

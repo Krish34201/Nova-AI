@@ -14,6 +14,7 @@ import { personalizedResponse } from '@/ai/flows/personalized-response';
 import { summarizeDocument } from '@/ai/flows/summarize-document';
 import { cn } from '@/lib/utils';
 import { useUsername } from '@/components/username-provider';
+import { useAccess } from '@/components/access-provider';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NovaLogo } from '@/components/nova-logo';
@@ -47,6 +48,7 @@ function ChatPageContent() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { username } = useUsername();
+  const { hasSpecialKey, requestCount, incrementRequestCount, limitExceeded } = useAccess();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -129,6 +131,7 @@ function ChatPageContent() {
   }
   
   const handlePromptClick = (prompt: string) => {
+    if (limitExceeded) return;
     setInput(prompt);
   };
 
@@ -136,7 +139,17 @@ function ChatPageContent() {
     const currentInput = textToSend || input;
     if (currentInput.trim() === '' && !attachedFile) return;
 
+    if (limitExceeded) {
+        const errorMessage: Message = {
+            text: 'You have exceeded your daily limit of 20 requests.',
+            isUser: false,
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+    }
+
     setIsSending(true);
+    incrementRequestCount();
 
     const userMessage: Message = { text: currentInput, isUser: true };
     if (attachedFile) {
@@ -247,7 +260,10 @@ function ChatPageContent() {
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
               >
                 <Card 
-                  className="p-4 bg-card/80 backdrop-blur-lg border border-border hover:border-primary/50 hover:bg-card/90 cursor-pointer transition-all duration-300 group shadow-lg hover:shadow-primary/20"
+                  className={cn(
+                    "p-4 bg-card/80 backdrop-blur-lg border border-border hover:border-primary/50 hover:bg-card/90 transition-all duration-300 group shadow-lg hover:shadow-primary/20",
+                    limitExceeded ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                  )}
                   onClick={() => handlePromptClick(prompt)}
                 >
                   <p className="text-sm text-foreground group-hover:text-primary transition-colors">{prompt}</p>
@@ -354,6 +370,11 @@ function ChatPageContent() {
           </div>
           <div className="px-4 pb-4">
               <div className="border-t border-border bg-background/50 backdrop-blur-lg p-2 rounded-2xl">
+                {limitExceeded && (
+                    <div className="text-center text-destructive text-xs p-2">
+                        LIMIT EXCEED 20 REQUEST ONLY PER DAY.
+                    </div>
+                )}
                 {attachedFile && (
                   <div className="relative mb-2 w-fit px-2">
                     {filePreview ? (
@@ -370,27 +391,32 @@ function ChatPageContent() {
                   </div>
                 )}
                 <div className="relative">
-                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" disabled={limitExceeded}/>
                   <Textarea
-                    placeholder={"Type your message, or drop a file..."}
+                    placeholder={limitExceeded ? "You have exceeded your daily request limit." : "Type your message, or drop a file..."}
                     className="w-full resize-none bg-input pr-16 pl-12 min-h-[52px] rounded-xl border-transparent focus:border-primary/50 focus:ring-primary/50 transition-colors"
                     rows={1}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    disabled={isSending}
+                    disabled={isSending || limitExceeded}
                   />
                   <div className="absolute top-1/2 left-4 transform -translate-y-1/2 flex items-center">
-                     <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
+                     <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground" onClick={() => fileInputRef.current?.click()} disabled={isSending || limitExceeded}>
                         <Paperclip className="h-5 w-5" />
                      </Button>
                   </div>
                   <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center">
-                    <Button size="icon" className="rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity" onClick={() => handleSend()} disabled={isSending || (!input.trim() && !attachedFile)}>
+                    <Button size="icon" className="rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity" onClick={() => handleSend()} disabled={isSending || (!input.trim() && !attachedFile) || limitExceeded}>
                       <Send className="h-5 w-5" />
                     </Button>
                   </div>
                 </div>
+                {!hasSpecialKey && (
+                    <div className="text-center text-muted-foreground text-xs pt-2">
+                        {requestCount} / 20 daily requests used.
+                    </div>
+                )}
               </div>
           </div>
         </div>

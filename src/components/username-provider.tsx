@@ -17,6 +17,8 @@ interface UsernameContextType {
   username: string | null;
   setUsername: (username: string | null) => void;
   isLoading: boolean;
+  showUsernameDialog: boolean;
+  setShowUsernameDialog: (show: boolean) => void;
 }
 
 const UsernameContext = createContext<UsernameContextType | undefined>(undefined);
@@ -24,7 +26,7 @@ const UsernameContext = createContext<UsernameContextType | undefined>(undefined
 export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [username, setUsername] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
+  const [showUsernameDialog, setShowUsernameDialog] = useState(false);
   const [inputUsername, setInputUsername] = useState('');
 
   useEffect(() => {
@@ -32,23 +34,17 @@ export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const storedUsername = localStorage.getItem('username');
       if (storedUsername) {
         setUsername(storedUsername);
-        setShowDialog(false);
+        setShowUsernameDialog(false);
       } else {
-        setShowDialog(true);
+        setShowUsernameDialog(true);
       }
     } catch (error) {
       console.error('Could not access local storage:', error);
-      setShowDialog(true); // Fallback to asking for username if local storage is blocked
+      setShowUsernameDialog(true);
     } finally {
       setIsLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    if (!isLoading && !username) {
-        setShowDialog(true);
-    }
-  }, [username, isLoading]);
 
   const handleSaveUsername = () => {
     if (inputUsername.trim()) {
@@ -59,7 +55,7 @@ export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       setUsername(inputUsername.trim());
       setInputUsername('');
-      setShowDialog(false);
+      setShowUsernameDialog(false);
     }
   };
   
@@ -70,9 +66,9 @@ export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <UsernameContext.Provider value={{ username, setUsername, isLoading }}>
+    <UsernameContext.Provider value={{ username, setUsername, isLoading, showUsernameDialog, setShowUsernameDialog }}>
       {children}
-      <Dialog open={showDialog}>
+      <Dialog open={showUsernameDialog}>
         <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Welcome to Nova AI</DialogTitle>
