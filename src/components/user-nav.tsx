@@ -20,7 +20,6 @@ export function UserNav() {
   const handleLogout = () => {
     if (username) {
         localStorage.removeItem(`chatHistory_${username}`);
-        localStorage.removeItem('deviceId'); // Reset device ID to allow new key entry for new user
     }
     localStorage.removeItem('username');
     setUsername(null);
