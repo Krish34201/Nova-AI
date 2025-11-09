@@ -67,7 +67,7 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setHasSpecialKey(true);
           setShowKeyDialog(false);
         } else {
-          
+            setHasSpecialKey(false);
             if (storedLastRequestDate === today) {
                 setRequestCount(Number(storedRequestCount) || 0);
             } else {
@@ -87,17 +87,10 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // This effect manages the dialog flow, ensuring the key dialog appears after username dialog
   useEffect(() => {
-    if (!showUsernameDialog && username && !hasSpecialKey && deviceId) {
-        try {
-            const keyStatus = localStorage.getItem(`hasSpecialKey_${deviceId}`);
-            if (keyStatus === null) { // only show if it's never been set for this device
-                setShowKeyDialog(true);
-            }
-        } catch (error) {
-            console.error(error);
-        }
+    if (!isUsernameLoading && !showUsernameDialog && username && !hasSpecialKey) {
+        setShowKeyDialog(true);
     }
-  }, [showUsernameDialog, username, hasSpecialKey, deviceId]);
+  }, [showUsernameDialog, username, hasSpecialKey, isUsernameLoading]);
 
 
   const handleKeyCheck = () => {
@@ -119,12 +112,8 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const handleSkip = () => {
     if (!deviceId) return;
-    // Only set 'false' if the user explicitly skips.
-    try {
-        localStorage.setItem(`hasSpecialKey_${deviceId}`, 'false');
-    } catch (error) {
-        console.error(error)
-    }
+    // Don't set a "false" value, just close the dialog.
+    // The user will be on the free tier by default.
     setHasSpecialKey(false);
     setShowKeyDialog(false);
   };
