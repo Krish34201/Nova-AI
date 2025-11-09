@@ -46,6 +46,14 @@ export const UsernameProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
+  useEffect(() => {
+    // If loading is finished and there's no username, show the dialog.
+    // This will trigger on initial load and after logout.
+    if (!isLoading && !username) {
+      setShowUsernameDialog(true);
+    }
+  }, [username, isLoading]);
+
   const handleSaveUsername = () => {
     if (inputUsername.trim()) {
       try {
