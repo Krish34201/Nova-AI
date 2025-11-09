@@ -9,24 +9,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { automateComplexTask } from '@/ai/flows/automate-complex-task';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAccess } from '@/components/access-provider';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AgentsPage() {
+  const { toast } = useToast();
+  const { limitExceeded, incrementRequestCount, requestCount, hasSpecialKey } = useAccess();
   const [taskDescription, setTaskDescription] = useState('');
   const [automationResult, setAutomationResult] = useState<{ steps: string[]; explanation: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAutomate = async () => {
+    if (limitExceeded) {
+      toast({
+        variant: 'destructive',
+        title: 'Limit Exceeded',
+        description: 'You have exceeded your daily limit of 20 requests.',
+      });
+      return;
+    }
     if (taskDescription.trim() === '') return;
 
     setIsLoading(true);
     setAutomationResult(null);
+    incrementRequestCount();
 
     try {
       const result = await automateComplexTask({ taskDescription });
       setAutomationResult(result);
     } catch (error) {
       console.error('Error automating task:', error);
-      // You could show a toast or an error message here
+      toast({
+        variant: 'destructive',
+        title: 'An Error Occurred',
+        description: 'Sorry, there was an error processing your request. Please try again.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -64,11 +81,18 @@ export default function AgentsPage() {
                     className="w-full resize-none min-h-[100px] bg-input"
                     value={taskDescription}
                     onChange={(e) => setTaskDescription(e.target.value)}
-                    disabled={isLoading}
+                    disabled={isLoading || limitExceeded}
                   />
-                  <Button onClick={handleAutomate} disabled={isLoading || !taskDescription.trim()}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Automate'}
-                  </Button>
+                  <div className="flex flex-col items-center">
+                    <Button onClick={handleAutomate} disabled={isLoading || !taskDescription.trim() || limitExceeded}>
+                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Automate'}
+                    </Button>
+                    {!hasSpecialKey && (
+                        <div className="text-center text-muted-foreground text-xs pt-2">
+                            {limitExceeded ? 'LIMIT EXCEED 20 REQUEST ONLY PER DAY.' : `${requestCount} / 20 daily requests used.`}
+                        </div>
+                    )}
+                  </div>
                 </div>
 
                 {automationResult && (

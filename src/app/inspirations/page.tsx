@@ -9,6 +9,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HeartHandshake, Wand2, Loader2 } from 'lucide-react';
 import { generateEmotionalContent, type ContentItem } from '@/ai/flows/generate-emotional-content';
+import { useAccess } from '@/components/access-provider';
+import { useToast } from '@/hooks/use-toast';
 
 type Category = 'Nostalgia & Memories' | 'Love & Heartache' | 'Hope & Healing' | 'Bittersweet Moments' | 'Personal Growth' | 'Inner Strength & Resilience' | 'Encouragement' | 'Self-Discovery';
 const categories: Category[] = ['Nostalgia & Memories', 'Love & Heartache', 'Hope & Healing', 'Bittersweet Moments', 'Personal Growth', 'Inner Strength & Resilience', 'Encouragement', 'Self-Discovery'];
@@ -25,18 +27,35 @@ const iconMap: { [key: string]: React.ReactNode } = {
 };
 
 export default function InspirationsPage() {
+  const { toast } = useToast();
+  const { limitExceeded, incrementRequestCount, requestCount, hasSpecialKey } = useAccess();
   const [selectedCategory, setSelectedCategory] = useState<Category>(categories[0]);
   const [generatedContent, setGeneratedContent] = useState<ContentItem[] | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateContent = async () => {
+    if (limitExceeded) {
+        toast({
+            variant: 'destructive',
+            title: 'Limit Exceeded',
+            description: 'You have exceeded your daily limit of 20 requests.',
+        });
+        return;
+    }
     setIsGenerating(true);
     setGeneratedContent(null);
+    incrementRequestCount();
+
     try {
       const result = await generateEmotionalContent({ category: selectedCategory });
       setGeneratedContent(result.items);
     } catch (error) {
       console.error("Error generating content:", error);
+      toast({
+        variant: "destructive",
+        title: "An Error Occurred",
+        description: "Sorry, there was an error processing your request. Please try again.",
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -73,14 +92,15 @@ export default function InspirationsPage() {
                     variant={selectedCategory === cat ? 'default' : 'outline'}
                     onClick={() => setSelectedCategory(cat)}
                     className="transition-all rounded-full"
+                    disabled={isGenerating || limitExceeded}
                   >
                     {cat}
                   </Button>
                 ))}
               </div>
 
-              <div className="flex justify-center mb-8">
-                <Button onClick={handleGenerateContent} disabled={isGenerating} size="lg" className="rounded-full">
+              <div className="flex flex-col items-center mb-8">
+                <Button onClick={handleGenerateContent} disabled={isGenerating || limitExceeded} size="lg" className="rounded-full">
                   {isGenerating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
@@ -88,6 +108,11 @@ export default function InspirationsPage() {
                   )}
                   {isGenerating ? 'Generating...' : `Generate for "${selectedCategory}"`}
                 </Button>
+                 {!hasSpecialKey && (
+                    <div className="text-center text-muted-foreground text-xs pt-2">
+                       {limitExceeded ? 'LIMIT EXCEED 20 REQUEST ONLY PER DAY.' : `${requestCount} / 20 daily requests used.`}
+                    </div>
+                )}
               </div>
 
               <AnimatePresence mode="wait">

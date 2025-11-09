@@ -9,24 +9,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { studyAiSummarizer, type StudyAiSummarizerOutput } from '@/ai/flows/study-ai-summarizer';
 import { GraduationCap, Loader2, Wand2, Lightbulb, Brain, Gem, Key } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAccess } from '@/components/access-provider';
+import { useToast } from '@/hooks/use-toast';
 
 export default function StudyAiPage() {
+  const { toast } = useToast();
+  const { limitExceeded, incrementRequestCount, requestCount, hasSpecialKey } = useAccess();
   const [chapterText, setChapterText] = useState('');
   const [summaryResult, setSummaryResult] = useState<StudyAiSummarizerOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSummarize = async () => {
+    if (limitExceeded) {
+      toast({
+        variant: 'destructive',
+        title: 'Limit Exceeded',
+        description: 'You have exceeded your daily limit of 20 requests.',
+      });
+      return;
+    }
     if (chapterText.trim() === '') return;
 
     setIsLoading(true);
     setSummaryResult(null);
+    incrementRequestCount();
 
     try {
       const result = await studyAiSummarizer({ chapterText });
       setSummaryResult(result);
     } catch (error) {
       console.error('Error summarizing chapter:', error);
-      // You could show a toast or an error message here
+      toast({
+        variant: "destructive",
+        title: "An Error Occurred",
+        description: "Sorry, there was an error processing your request. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -65,12 +82,19 @@ export default function StudyAiPage() {
                     className="w-full resize-none min-h-[200px] bg-input p-4 rounded-lg"
                     value={chapterText}
                     onChange={(e) => setChapterText(e.target.value)}
-                    disabled={isLoading}
+                    disabled={isLoading || limitExceeded}
                   />
-                  <Button onClick={handleSummarize} disabled={isLoading || !chapterText.trim()} size="lg">
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                    {isLoading ? 'Analyzing...' : 'Generate Study Guide'}
-                  </Button>
+                  <div className="flex flex-col items-center">
+                    <Button onClick={handleSummarize} disabled={isLoading || !chapterText.trim() || limitExceeded} size="lg">
+                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                      {isLoading ? 'Analyzing...' : 'Generate Study Guide'}
+                    </Button>
+                     {!hasSpecialKey && (
+                      <div className="text-center text-muted-foreground text-xs pt-2">
+                        {limitExceeded ? 'LIMIT EXCEED 20 REQUEST ONLY PER DAY.' : `${requestCount} / 20 daily requests used.`}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <AnimatePresence>

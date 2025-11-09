@@ -13,6 +13,7 @@ import { Loader2, Wand2, BookMarked, Upload, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { useAccess } from '@/components/access-provider';
 
 const wordLimits = ["20-30 words", "30-40 words", "40-50 words", "50-70 words", "No limit"];
 const classes = Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`);
@@ -21,6 +22,7 @@ const styles = ["Simple", "Detailed", "Exam-Oriented"];
 
 export default function HomeworkPage() {
   const { toast } = useToast();
+  const { limitExceeded, incrementRequestCount, requestCount, hasSpecialKey } = useAccess();
   const [question, setQuestion] = useState('');
   const [wordLimit, setWordLimit] = useState(wordLimits[0]);
   const [classLevel, setClassLevel] = useState('none');
@@ -55,6 +57,14 @@ export default function HomeworkPage() {
   }
 
   const handleSubmit = async () => {
+    if (limitExceeded) {
+        toast({
+            variant: "destructive",
+            title: "Limit Exceeded",
+            description: "You have exceeded your daily limit of 20 requests.",
+        });
+        return;
+    }
     if (!question.trim() && !uploadedImage) {
         toast({
             variant: "destructive",
@@ -66,6 +76,7 @@ export default function HomeworkPage() {
 
     setIsLoading(true);
     setResult(null);
+    incrementRequestCount();
 
     try {
         const input = {
@@ -124,10 +135,10 @@ export default function HomeworkPage() {
                             className="w-full resize-none min-h-[150px] bg-input p-4 rounded-lg"
                             value={question}
                             onChange={(e) => setQuestion(e.target.value)}
-                            disabled={isLoading}
+                            disabled={isLoading || limitExceeded}
                         />
                         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                         <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
+                         <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isLoading || limitExceeded}>
                             <Upload className="mr-2 h-4 w-4" />
                             Upload an Image
                         </Button>
@@ -144,7 +155,7 @@ export default function HomeworkPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="font-medium text-sm mb-2 block">Word Limit</label>
-                                <Select value={wordLimit} onValueChange={setWordLimit} disabled={isLoading}>
+                                <Select value={wordLimit} onValueChange={setWordLimit} disabled={isLoading || limitExceeded}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         {wordLimits.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -153,7 +164,7 @@ export default function HomeworkPage() {
                             </div>
                              <div>
                                 <label className="font-medium text-sm mb-2 block">Style (Optional)</label>
-                                <Select value={style} onValueChange={setStyle} disabled={isLoading}>
+                                <Select value={style} onValueChange={setStyle} disabled={isLoading || limitExceeded}>
                                     <SelectTrigger><SelectValue placeholder="Select a style" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="default">Default</SelectItem>
@@ -165,7 +176,7 @@ export default function HomeworkPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="font-medium text-sm mb-2 block">Class (Optional)</label>
-                                <Select value={classLevel} onValueChange={setClassLevel} disabled={isLoading}>
+                                <Select value={classLevel} onValueChange={setClassLevel} disabled={isLoading || limitExceeded}>
                                     <SelectTrigger><SelectValue placeholder="Select a class" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">None</SelectItem>
@@ -175,7 +186,7 @@ export default function HomeworkPage() {
                             </div>
                             <div>
                                 <label className="font-medium text-sm mb-2 block">Subject (Optional)</label>
-                                <Select value={subject} onValueChange={setSubject} disabled={isLoading}>
+                                <Select value={subject} onValueChange={setSubject} disabled={isLoading || limitExceeded}>
                                     <SelectTrigger><SelectValue placeholder="Select a subject" /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">None</SelectItem>
@@ -187,11 +198,16 @@ export default function HomeworkPage() {
                     </div>
                 </div>
 
-                <div className="flex justify-center mb-8">
-                  <Button onClick={handleSubmit} disabled={isLoading} size="lg" className="rounded-full">
+                <div className="flex flex-col items-center mb-8">
+                  <Button onClick={handleSubmit} disabled={isLoading || limitExceeded} size="lg" className="rounded-full">
                       {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                       {isLoading ? 'Finding the Answer...' : 'Let AI Do the Homework!'}
                   </Button>
+                   {!hasSpecialKey && (
+                        <div className="text-center text-muted-foreground text-xs pt-2">
+                           {limitExceeded ? 'LIMIT EXCEED 20 REQUEST ONLY PER DAY.' : `${requestCount} / 20 daily requests used.`}
+                        </div>
+                    )}
                 </div>
                 
                 <AnimatePresence>

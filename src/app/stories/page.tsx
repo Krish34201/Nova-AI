@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { generateStory, type GenerateStoryInput } from '@/ai/flows/generate-story';
 import { Loader2, Wand2, BookText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAccess } from '@/components/access-provider';
+import { useToast } from '@/hooks/use-toast';
 
 const categories = [
   "Thriller / Suspense",
@@ -28,6 +30,8 @@ const storyLengths: GenerateStoryInput['length'][] = ["Micro", "Short", "Long"];
 const moods = ["Dark", "Lighthearted", "Inspiring", "Sad", "Exciting", "Mysterious"];
 
 export default function StoriesPage() {
+  const { toast } = useToast();
+  const { limitExceeded, incrementRequestCount, requestCount, hasSpecialKey } = useAccess();
   const [category, setCategory] = useState<string>(categories[0]);
   const [length, setLength] = useState<GenerateStoryInput['length']>(storyLengths[0]);
   const [mood, setMood] = useState<string>(moods[0]);
@@ -37,8 +41,18 @@ export default function StoriesPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGenerateStory = async () => {
+    if (limitExceeded) {
+      toast({
+        variant: 'destructive',
+        title: 'Limit Exceeded',
+        description: 'You have exceeded your daily limit of 20 requests.',
+      });
+      return;
+    }
     setIsLoading(true);
     setGeneratedStory('');
+    incrementRequestCount();
+
     try {
       const result = await generateStory({
         category,
@@ -50,6 +64,11 @@ export default function StoriesPage() {
       setGeneratedStory(result.story);
     } catch (error) {
       console.error('Error generating story:', error);
+      toast({
+        variant: 'destructive',
+        title: 'An Error Occurred',
+        description: 'Sorry, there was an error generating your story. Please try again.',
+      });
       setGeneratedStory('Sorry, there was an error generating your story. Please try again.');
     } finally {
       setIsLoading(false);
@@ -87,7 +106,7 @@ export default function StoriesPage() {
                   {/* Category */}
                   <div className="space-y-2">
                     <label className="font-medium">Category</label>
-                    <Select value={category} onValueChange={setCategory}>
+                    <Select value={category} onValueChange={setCategory} disabled={isLoading || limitExceeded}>
                       <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                       <SelectContent>
                         {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -97,7 +116,7 @@ export default function StoriesPage() {
                   {/* Story Length */}
                   <div className="space-y-2">
                     <label className="font-medium">Story Length</label>
-                    <Select value={length} onValueChange={(v) => setLength(v as GenerateStoryInput['length'])}>
+                    <Select value={length} onValueChange={(v) => setLength(v as GenerateStoryInput['length'])} disabled={isLoading || limitExceeded}>
                       <SelectTrigger><SelectValue placeholder="Select length" /></SelectTrigger>
                       <SelectContent>
                         {storyLengths.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -107,7 +126,7 @@ export default function StoriesPage() {
                   {/* Mood/Tone */}
                   <div className="space-y-2">
                     <label className="font-medium">Mood / Tone</label>
-                    <Select value={mood} onValueChange={setMood}>
+                    <Select value={mood} onValueChange={setMood} disabled={isLoading || limitExceeded}>
                       <SelectTrigger><SelectValue placeholder="Select a mood" /></SelectTrigger>
                       <SelectContent>
                         {moods.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
@@ -124,6 +143,7 @@ export default function StoriesPage() {
                       placeholder="e.g., Alex, Maria"
                       value={characterNames}
                       onChange={(e) => setCharacterNames(e.target.value)}
+                      disabled={isLoading || limitExceeded}
                     />
                   </div>
                   {/* Character Traits */}
@@ -133,12 +153,13 @@ export default function StoriesPage() {
                       placeholder="e.g., Brave, witty, curious"
                       value={characterTraits}
                       onChange={(e) => setCharacterTraits(e.target.value)}
+                      disabled={isLoading || limitExceeded}
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-center mb-8">
-                  <Button onClick={handleGenerateStory} disabled={isLoading} size="lg" className="rounded-full">
+                <div className="flex flex-col items-center mb-8">
+                  <Button onClick={handleGenerateStory} disabled={isLoading || limitExceeded} size="lg" className="rounded-full">
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.span
                         key={isLoading ? "loading" : "ready"}
@@ -153,6 +174,11 @@ export default function StoriesPage() {
                       </motion.span>
                     </AnimatePresence>
                   </Button>
+                   {!hasSpecialKey && (
+                      <div className="text-center text-muted-foreground text-xs pt-2">
+                          {limitExceeded ? 'LIMIT EXCEED 20 REQUEST ONLY PER DAY.' : `${requestCount} / 20 daily requests used.`}
+                      </div>
+                  )}
                 </div>
                 
                 <AnimatePresence>
