@@ -27,19 +27,20 @@ interface AccessContextType {
 const AccessContext = createContext<AccessContextType | undefined>(undefined);
 
 export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { username, isLoading: isUsernameLoading, showUsernameDialog, setShowUsernameDialog } = useUsername();
+  const { username, isLoading: isUsernameLoading, showUsernameDialog } = useUsername();
   
   const [hasSpecialKey, setHasSpecialKey] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
-  const [lastRequestDate, setLastRequestDate] = useState<string | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
   const [showKeyDialog, setShowKeyDialog] = useState(false);
   const [inputKey, setInputKey] = useState('');
+  const [keyError, setKeyError] = useState<string | null>(null);
 
   // Effect to load access state from localStorage when username is available
   useEffect(() => {
     if (username) {
+      setIsLoading(true);
       try {
         const storedKeyStatus = localStorage.getItem(`hasSpecialKey_${username}`);
         const storedRequestCount = localStorage.getItem(`requestCount_${username}`);
@@ -50,8 +51,8 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setHasSpecialKey(true);
           setShowKeyDialog(false);
         } else {
-            // If there's no key, check if we need to show the dialog
-            if (storedKeyStatus === null) { // only show dialog for the first time
+            // Only show dialog for the very first session
+            if (storedKeyStatus === null) { 
                 setShowKeyDialog(true);
             }
           
@@ -63,7 +64,6 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 localStorage.setItem(`requestCount_${username}`, '0');
                 localStorage.setItem(`lastRequestDate_${username}`, today);
             }
-            setLastRequestDate(today);
         }
       } catch (error) {
         console.error('Could not access local storage for access state:', error);
@@ -71,17 +71,16 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setIsLoading(false);
       }
     } else if (!isUsernameLoading) {
-        // If there's no username and we are not loading it, we are not loading access state either.
         setIsLoading(false);
     }
   }, [username, isUsernameLoading]);
 
-  // This effect manages the dialog flow
+  // This effect manages the dialog flow, ensuring the key dialog appears after username dialog
   useEffect(() => {
     if (!showUsernameDialog && username && !hasSpecialKey) {
         try {
             const keyStatus = localStorage.getItem(`hasSpecialKey_${username}`);
-            if (keyStatus === null) {
+            if (keyStatus === null) { // only show if it's never been set
                 setShowKeyDialog(true);
             }
         } catch (error) {
@@ -94,6 +93,7 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const handleKeyCheck = () => {
     const trimmedKey = inputKey.trim();
     if (trimmedKey === SPECIAL_KEY) {
+      setKeyError(null);
       try {
         localStorage.setItem(`hasSpecialKey_${username}`, 'true');
       } catch (error) {
@@ -102,20 +102,22 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setHasSpecialKey(true);
       setShowKeyDialog(false);
     } else {
-      // Handle incorrect key if needed, e.g., show an error message.
-      // For now, we just close the dialog.
-       handleSkip();
+      setKeyError("WRONG!");
     }
   };
 
   const handleSkip = () => {
-    try {
-        localStorage.setItem(`hasSpecialKey_${username}`, 'false');
-    } catch (error) {
-        console.error(error)
+    // Only set 'false' if the user explicitly skips.
+    // If they get the key wrong, the dialog should stay open.
+    if (inputKey.trim() === '') {
+        try {
+            localStorage.setItem(`hasSpecialKey_${username}`, 'false');
+        } catch (error) {
+            console.error(error)
+        }
+        setHasSpecialKey(false);
+        setShowKeyDialog(false);
     }
-    setHasSpecialKey(false);
-    setShowKeyDialog(false);
   };
   
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -127,9 +129,11 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const incrementRequestCount = () => {
     if (!hasSpecialKey) {
       const newCount = requestCount + 1;
+      const today = new Date().toISOString().split('T')[0];
       setRequestCount(newCount);
       try {
         localStorage.setItem(`requestCount_${username}`, String(newCount));
+        localStorage.setItem(`lastRequestDate_${username}`, today);
       } catch (error) {
           console.error(error);
       }
@@ -157,13 +161,19 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               <Input
                 id="special-key"
                 value={inputKey}
-                onChange={(e) => setInputKey(e.target.value)}
+                onChange={(e) => {
+                    setInputKey(e.target.value);
+                    if (keyError) setKeyError(null);
+                }}
                 onKeyPress={handleKeyPress}
                 className="col-span-3"
                 placeholder="Optional"
                 autoComplete="off"
               />
             </div>
+            {keyError && (
+                <p className="text-center text-sm text-destructive">{keyError}</p>
+            )}
           </div>
           <DialogFooter className="sm:justify-between">
             <Button variant="ghost" onClick={handleSkip}>
