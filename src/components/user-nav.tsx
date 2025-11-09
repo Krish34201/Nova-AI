@@ -13,15 +13,18 @@ import {
 import { useUsername } from "@/components/username-provider"
 import { Skeleton } from "./ui/skeleton"
 import { LogOut } from "lucide-react"
+import { useAccess } from "@/components/access-provider"
 
 export function UserNav() {
   const { username, setUsername, isLoading } = useUsername();
+  const { hasSpecialKey } = useAccess();
 
   const handleLogout = () => {
     if (username) {
         localStorage.removeItem(`chatHistory_${username}`);
     }
     localStorage.removeItem('username');
+    localStorage.removeItem('hasSpecialKey'); // Also clear key status on logout
     setUsername(null);
     // Reload to ensure all state is reset cleanly
     window.location.reload();
@@ -57,7 +60,7 @@ export function UserNav() {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{username}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              Guest User
+              {hasSpecialKey ? 'Premium User' : 'Guest User'}
             </p>
           </div>
         </DropdownMenuLabel>
