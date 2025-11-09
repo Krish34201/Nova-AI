@@ -67,10 +67,6 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setHasSpecialKey(true);
           setShowKeyDialog(false);
         } else {
-            // Only show dialog for the very first session on this device
-            if (storedKeyStatus === null && username) { 
-                setShowKeyDialog(true);
-            }
           
             if (storedLastRequestDate === today) {
                 setRequestCount(Number(storedRequestCount) || 0);
@@ -87,7 +83,7 @@ export const AccessProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setIsLoading(false);
       }
     }
-  }, [deviceId, username]);
+  }, [deviceId]);
 
   // This effect manages the dialog flow, ensuring the key dialog appears after username dialog
   useEffect(() => {
