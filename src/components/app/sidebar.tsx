@@ -20,7 +20,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { NovaLogo } from '../nova-logo'
-import { UserNav } from '@/app/user-nav'
+import { UserNav } from '@/components/user-nav'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
