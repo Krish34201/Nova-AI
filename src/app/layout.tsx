@@ -7,12 +7,26 @@ import { AccessProvider } from '@/components/access-provider';
 import AnimatedBackground from '@/components/animated-background';
 import { ThemeProvider } from 'next-themes';
 import Script from 'next/script';
+import { ShieldAlert } from 'lucide-react';
 
+const IS_UNDER_MAINTENANCE = true;
 
 export const metadata: Metadata = {
-  title: 'Nova AI',
-  description: 'The all-in-one AI system with premium capabilities.',
+  title: IS_UNDER_MAINTENANCE ? 'Under Maintenance - Nova AI' : 'Nova AI',
+  description: IS_UNDER_MAINTENANCE ? 'The site is currently under maintenance.' : 'The all-in-one AI system with premium capabilities.',
 };
+
+const MaintenancePage = () => (
+  <div className="flex flex-col items-center justify-center h-screen w-screen bg-background text-foreground text-center p-4">
+    <ShieldAlert className="h-16 w-16 text-primary mb-6" />
+    <h1 className="text-4xl md:text-5xl font-bold mb-4">Under Maintenance</h1>
+    <p className="text-lg text-muted-foreground mb-8">
+      We are currently performing scheduled maintenance. Please check back soon.
+    </p>
+    <p className="text-sm text-foreground">@eternal_krish</p>
+  </div>
+);
+
 
 export default function RootLayout({
   children,
@@ -29,17 +43,24 @@ export default function RootLayout({
         <Script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js" />
       </head>
       <body className="font-body antialiased">
-        <ThemeProvider attribute="class" defaultTheme="dark">
+        {IS_UNDER_MAINTENANCE ? (
+          <>
             <AnimatedBackground />
-            <UsernameProvider>
-              <AccessProvider>
-                <SidebarProvider>
-                  {children}
-                </SidebarProvider>
-              </AccessProvider>
-            </UsernameProvider>
-            <Toaster />
-        </ThemeProvider>
+            <MaintenancePage />
+          </>
+        ) : (
+          <ThemeProvider attribute="class" defaultTheme="dark">
+              <AnimatedBackground />
+              <UsernameProvider>
+                <AccessProvider>
+                  <SidebarProvider>
+                    {children}
+                  </SidebarProvider>
+                </AccessProvider>
+              </UsernameProvider>
+              <Toaster />
+          </ThemeProvider>
+        )}
       </body>
     </html>
   );
